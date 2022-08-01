@@ -24,9 +24,16 @@ if __name__ == '__main__':
     print(f'Available device: {device}')
 
     m_dataset = MapillaryDataset(data_path, labels_path)
-    m_dataloader = DataLoader(m_dataset, batch_size=1, shuffle=True, )
+    m_dataloader = DataLoader(m_dataset, batch_size=1, shuffle=True)
 
     img, label = m_dataset[0]
-
+    
     m_dataset.display_image(img)
     m_dataset.display_image(label)
+
+    for batch_num, batch in enumerate(m_dataloader):
+        img, label = batch
+        m_dataset.display_image(img[0])
+        m_dataset.display_image(label[0])
+        if batch_num >= 3:
+            break
