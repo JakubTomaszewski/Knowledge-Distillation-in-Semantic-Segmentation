@@ -20,10 +20,13 @@ class MapillaryDataset(Dataset):
         Raises:
             ValueError: _description_
         """
-        if data_path.exists():
-            self.data_path = data_path
-        if labels_path.exists():
-            self.labels_path = labels_path
+        if not data_path.exists():
+            raise OSError(f'Path: {data_path} does not exist')
+        if not labels_path.exists():
+            raise OSError(f'Path: {labels_path} does not exist')
+
+        self.data_path = data_path
+        self.labels_path = labels_path
         self.sample_filenames = os.listdir(self.data_path)
         self.label_filenames = os.listdir(self.labels_path)
 
@@ -56,7 +59,7 @@ class MapillaryDataset(Dataset):
         Returns:
             int: number of dataset samples
         """
-        return len(self.sample_names)
+        return len(self.sample_filenames)
 
     def __getitem__(self, index) -> Tuple:
         # transform it (resize, transform to tensor etc.) - just apply transformation
@@ -69,6 +72,9 @@ class MapillaryDataset(Dataset):
         sample = self.load_image(str(self.data_path / sample_filename))
         label = self.load_image(str(self.labels_path / label_filename))
         
+        if sample.size()[1:] != label.size()[1:]:  # checking if the image size matches
+            raise ValueError(f'Sample and Label dimenstions do not match.\nSample: {sample.size()[1:]}\nLabel: {label.size()[1:]}')
+
         if self.transformation is not None:
             sample = self.transformation(sample)
         return sample, label
