@@ -2,8 +2,14 @@ from pip import main
 from pathlib import Path
 import torch
 from torch.utils.data import DataLoader
+import random
+from torchvision.transforms import RandomRotation
+
+# random.seed(10)
+# torch.manual_seed(10)
 
 from data_processing.mapillary_dataset import MapillaryDataset
+from data_processing.data_transformations import create_transformation_pipeline
 
 
 def get_device():
@@ -23,11 +29,15 @@ if __name__ == '__main__':
     device = get_device()
     print(f'Available device: {device}')
 
-    m_dataset = MapillaryDataset(data_path, labels_path)
+    transform_pipeline = create_transformation_pipeline()
+
+    m_dataset = MapillaryDataset(data_path, labels_path, transformation=transform_pipeline)
     m_dataloader = DataLoader(m_dataset, batch_size=1, shuffle=True)
 
     img, label = m_dataset[0]
     
+    print(type(img))
+    print(img.shape)
     m_dataset.display_image(img)
     m_dataset.display_image(label)
 
@@ -35,5 +45,5 @@ if __name__ == '__main__':
         img, label = batch
         m_dataset.display_image(img[0])
         m_dataset.display_image(label[0])
-        if batch_num >= 3:
+        if batch_num >= 1:
             break

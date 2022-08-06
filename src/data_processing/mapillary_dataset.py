@@ -1,9 +1,11 @@
 import os
-import cv2
+import random
 from pathlib import Path
 from typing import List, Tuple
 import warnings
 
+import numpy as np
+import torch
 import matplotlib.pyplot as plt
 from torch.utils.data import Dataset
 from torchvision.io import read_image
@@ -76,11 +78,50 @@ class MapillaryDataset(Dataset):
             raise ValueError(f'Sample and Label dimenstions do not match.\nSample: {sample.size()[1:]}\nLabel: {label.size()[1:]}')
 
         if self.transformation is not None:
-            sample = self.transformation(sample)
+            seed = np.random.randint(2147483647)
+            sample, label = self.transform_sample_and_label(sample, label, seed)
+            
+        return sample, label
+
+    def transform_sample_and_label(self, sample, label, seed):
+        """Ensures the same transformations for sample and label
+
+        Args:
+            sample (torch.Tensor): _description_
+            label (_type_): _description_
+            seed (_type_): _description_
+
+        Returns:
+            _type_: _description_
+        """
+        # Seting seed for sample transform
+        MapillaryDataset.set_random_seed(seed)
+        # Transforming sample
+        sample = self.transformation(sample)
+        
+        # Setting the same seed for label transform
+        MapillaryDataset.set_random_seed(seed)
+        # Transforming label
+        label = self.transformation(label)
         return sample, label
 
     @staticmethod
+    def set_random_seed(seed):
+        """Sets a seed for computations performed by torch and random library
+
+        Args:
+            seed (int): random seed to be set
+        """
+        random.seed(seed)
+        torch.manual_seed(seed)
+
+    @staticmethod
     def display_image(image):
+        """Displays a torch the image in the type of Tensor
+
+        Args:
+            image (torch.tensor): image in the form of torch.Tensor(channels, height, width) 
+        """
         plt.imshow(image.permute(1, 2, 0))
         plt.show()
 
@@ -101,7 +142,7 @@ class MapillaryDataset(Dataset):
         return matched_filename
 
     @staticmethod
-    def create_sample_label_dict(sample_filenames, label_filenames):
+    def _create_sample_label_dict(sample_filenames, label_filenames):
         N = len(sample_filenames)
         sample_label_dict = {}
         for i, sample_filename in enumerate(sample_filenames):
