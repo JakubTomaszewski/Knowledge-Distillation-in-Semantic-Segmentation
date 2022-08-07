@@ -9,7 +9,10 @@ from torchvision.transforms import RandomRotation
 # torch.manual_seed(10)
 
 from data_processing.mapillary_dataset import MapillaryDataset
-from data_processing.data_transformations import create_transformation_pipeline
+from data_processing.data_transformations import create_data_transformation_pipeline, create_label_transformation_pipeline
+
+
+MAX_ROTATION_ANGLE = 20
 
 
 def get_device():
@@ -29,9 +32,14 @@ if __name__ == '__main__':
     device = get_device()
     print(f'Available device: {device}')
 
-    transform_pipeline = create_transformation_pipeline()
+    data_transformation_pipeline = create_data_transformation_pipeline(MAX_ROTATION_ANGLE)
+    label_transformation_pipeline = create_label_transformation_pipeline(MAX_ROTATION_ANGLE)
 
-    m_dataset = MapillaryDataset(data_path, labels_path, transformation=transform_pipeline)
+    m_dataset = MapillaryDataset(data_path,
+                                 labels_path,
+                                 sample_transformation=data_transformation_pipeline,
+                                 label_transformation=label_transformation_pipeline)
+    
     m_dataloader = DataLoader(m_dataset, batch_size=1, shuffle=True)
 
     img, label = m_dataset[0]

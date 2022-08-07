@@ -12,7 +12,11 @@ from torchvision.io import read_image
 
 
 class MapillaryDataset(Dataset):
-    def __init__(self, data_path: Path, labels_path: Path, transformation=None) -> None:
+    def __init__(self,
+                 data_path: Path,
+                 labels_path: Path,
+                 sample_transformation=None,
+                 label_transformation=None) -> None:
         """Initializes the Mapillary Dataset class.
 
         Args:
@@ -34,7 +38,94 @@ class MapillaryDataset(Dataset):
 
         if len(self.sample_filenames) != len(self.label_filenames):
             warnings.warn('Number of samples does not match the number of labels.')
-        self.transformation = transformation
+            
+        self.sample_transformation = sample_transformation
+        self.label_transformation = label_transformation
+
+    def __len__(self):
+        """Returns the total number of samples.
+
+        Returns:
+            int: number of dataset samples
+        """
+        return len(self.sample_filenames)
+
+    def __getitem__(self, index) -> Tuple:
+        sample_filename = self.sample_filenames[index]
+        label_filename = self.get_corresponding_label_filename(sample_filename)
+        
+        if label_filename is None:
+            raise ValueError(f'No label for such file {sample_filename}')
+
+        sample = self.load_image(str(self.data_path / sample_filename))
+        label = self.load_image(str(self.labels_path / label_filename))
+        
+        self._validate_data(sample, label)
+        
+        # Checking if transformation should be applied
+        if self.sample_transformation is not None or self.label_transformation is not None:
+            sample, label = self._handle_transformation(sample, label)
+        return sample, label
+
+    def _validate_data(self, sample: torch.Tensor, label: torch.Tensor):
+        """Validates data and label correctness.
+
+        Args:
+            sample (torch.Tensor): _description_
+            label (torch.Tensor): _description_
+
+        Raises:
+            ValueError: raised when data and label shapes do not match 
+        """
+        if sample.size()[1:] != label.size()[1:]:
+            raise ValueError(f'Sample and Label dimenstions do not match.\nSample: {sample.size()[1:]}\nLabel: {label.size()[1:]}')
+        # TODO: further validation?
+
+    def _handle_transformation(self, 
+                               sample: torch.Tensor, 
+                               label: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
+        """Handles transformation both for the sample and the label.
+
+        Args:
+            sample (_type_): _description_
+            label (_type_): _description_
+
+        Returns:
+            Tuple[torch.Tensor, torch.Tensor]: tuple containing transformed sample and label
+        """
+        if self.sample_transformation is not None and self.label_transformation is not None:
+            sample, label = self.transform_sample_and_label(sample, label)
+        else:
+            if self.sample_transformation is not None:
+                sample = self.sample_transformation(sample)
+            if self.label_transformation:
+                label = self.label_transformation(label)
+        return sample, label
+
+    def transform_sample_and_label(self, 
+                                   sample: torch.Tensor, 
+                                   label: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
+        """Ensures the same transformations for sample and label.
+
+        Args:
+            sample (torch.Tensor): _description_
+            label (torch.Tensor): _description_
+
+        Returns:
+            Tuple[torch.Tensor, torch.Tensor]: tuple containing transformed sample and label
+        """
+        # Seting seed for sample transform
+        seed = np.random.randint(2147483647)
+        MapillaryDataset.set_random_seed(seed)
+        
+        # Transforming sample
+        sample = self.sample_transformation(sample)
+        
+        # Setting the same seed for label transform
+        MapillaryDataset.set_random_seed(seed)
+        # Transforming label
+        label = self.label_transformation(label)
+        return sample, label
 
     def get_corresponding_label_filename(self, sample_filename):
         """_summary_
@@ -54,56 +145,6 @@ class MapillaryDataset(Dataset):
     def load_image(self, path: str):
         print(f'loading image from path {path}')  # logger?
         return read_image(path)
-
-    def __len__(self):
-        """Returns the total number of samples.
-
-        Returns:
-            int: number of dataset samples
-        """
-        return len(self.sample_filenames)
-
-    def __getitem__(self, index) -> Tuple:
-        # transform it (resize, transform to tensor etc.) - just apply transformation
-        # https://pytorch.org/tutorials/beginner/data_loading_tutorial.html#transforms
-        sample_filename = self.sample_filenames[index]
-        label_filename = self.get_corresponding_label_filename(sample_filename)
-        if label_filename is None:
-            raise ValueError(f'No label for such file {sample_filename}')
-
-        sample = self.load_image(str(self.data_path / sample_filename))
-        label = self.load_image(str(self.labels_path / label_filename))
-        
-        if sample.size()[1:] != label.size()[1:]:  # checking if the image size matches
-            raise ValueError(f'Sample and Label dimenstions do not match.\nSample: {sample.size()[1:]}\nLabel: {label.size()[1:]}')
-
-        if self.transformation is not None:
-            seed = np.random.randint(2147483647)
-            sample, label = self.transform_sample_and_label(sample, label, seed)
-            
-        return sample, label
-
-    def transform_sample_and_label(self, sample, label, seed):
-        """Ensures the same transformations for sample and label
-
-        Args:
-            sample (torch.Tensor): _description_
-            label (_type_): _description_
-            seed (_type_): _description_
-
-        Returns:
-            _type_: _description_
-        """
-        # Seting seed for sample transform
-        MapillaryDataset.set_random_seed(seed)
-        # Transforming sample
-        sample = self.transformation(sample)
-        
-        # Setting the same seed for label transform
-        MapillaryDataset.set_random_seed(seed)
-        # Transforming label
-        label = self.transformation(label)
-        return sample, label
 
     @staticmethod
     def set_random_seed(seed):
