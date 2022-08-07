@@ -12,7 +12,10 @@ from data_processing.mapillary_dataset import MapillaryDataset
 from data_processing.data_transformations import create_data_transformation_pipeline, create_label_transformation_pipeline
 
 
-MAX_ROTATION_ANGLE = 20
+IMG_SIZE = (400, 600)
+_MAX_ROTATION_ANGLE = 15
+_PADDING=25
+_DISTORTION_FACTOR=0.2
 
 
 def get_device():
@@ -32,8 +35,8 @@ if __name__ == '__main__':
     device = get_device()
     print(f'Available device: {device}')
 
-    data_transformation_pipeline = create_data_transformation_pipeline(MAX_ROTATION_ANGLE)
-    label_transformation_pipeline = create_label_transformation_pipeline(MAX_ROTATION_ANGLE)
+    data_transformation_pipeline = create_data_transformation_pipeline(IMG_SIZE, _MAX_ROTATION_ANGLE, _PADDING, _DISTORTION_FACTOR)
+    label_transformation_pipeline = create_label_transformation_pipeline(IMG_SIZE, _MAX_ROTATION_ANGLE, _PADDING, _DISTORTION_FACTOR)
 
     m_dataset = MapillaryDataset(data_path,
                                  labels_path,
@@ -53,5 +56,5 @@ if __name__ == '__main__':
         img, label = batch
         m_dataset.display_image(img[0])
         m_dataset.display_image(label[0])
-        if batch_num >= 1:
+        if batch_num >= 0:
             break
