@@ -14,6 +14,7 @@ import warnings
 
 import numpy as np
 import torch
+import cv2
 import matplotlib.pyplot as plt
 from torch.utils.data import Dataset
 from torchvision.io import read_image
@@ -172,9 +173,11 @@ class MapillaryDataset(Dataset):
         Args:
             image (torch.Tensor): image in the form of torch.Tensor(channels, height, width) 
         """
-        plt.imshow(image.permute(1, 2, 0))
+        numpy_img = torch_image_to_numpy(image)
+        rgb_img = cv2.cvtColor(numpy_img, cv2.COLOR_BGR2RGB)
+        plt.imshow(rgb_img)
         plt.show()
-    
+
     def get_sample(self, index):
         # TODO: loads and returns an image sample based on the provided index.
         pass
@@ -185,6 +188,9 @@ class MapillaryDataset(Dataset):
 
 
 # Helper functions
+
+def torch_image_to_numpy(image):
+    return image.permute(1, 2, 0).numpy()
 
 def set_randomness_seed(seed):
     """Sets a seed for computations performed by torch and random library.
