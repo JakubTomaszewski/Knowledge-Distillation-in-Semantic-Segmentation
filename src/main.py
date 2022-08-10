@@ -2,12 +2,8 @@ from pathlib import Path
 import torch
 from torch.utils.data import DataLoader
 import numpy as np
-import random
-from torchvision.transforms import RandomRotation
 
-# random.seed(10)
-# torch.manual_seed(10)
-
+from utils.helpers import set_randomness_seed
 from data_processing.mapillary_dataset import MapillaryDataset
 from data_processing.data_transformations import (
                                                  create_data_transformation_pipeline,
@@ -24,17 +20,24 @@ _SHARPNESS_FACTOR=0.5
 
 
 def get_device():
-    device = None
+    """Returns the available device for computation.
+
+    Returns:
+        torch.device: available device for computation
+    """
+    compute_device = None
     if torch.cuda.is_available():
-        device = torch.device('cuda')
+        compute_device = torch.device('cuda')
     elif torch.backends.mps.is_available():
-        device = torch.device('mps')
+        compute_device = torch.device('mps')
     else:
-        device = torch.device('cpu')
-    return device
+        compute_device = torch.device('cpu')
+    return compute_device
 
 
 if __name__ == '__main__':
+    seed = np.random.randint(2147483647)
+
     data_path = Path('../data/Mapillary_vistas_dataset/training/images')  # load from ArgParse
     labels_path = Path('../data/Mapillary_vistas_dataset/training/labels')
 
@@ -42,8 +45,14 @@ if __name__ == '__main__':
     print(f'Available device: {device}')
     print(np.array(IMG_SIZE) * 0.9)
 
+    set_randomness_seed(seed)
     data_transformation_pipeline = create_data_transformation_pipeline(IMG_SIZE, _MAX_ROTATION_ANGLE, _PADDING, _DISTORTION_FACTOR, _CROP_FACTOR, _SHARPNESS_FACTOR, fill_value=0)
+
+    set_randomness_seed(seed)
     label_transformation_pipeline = create_label_transformation_pipeline(IMG_SIZE, _MAX_ROTATION_ANGLE, _PADDING, _DISTORTION_FACTOR, _CROP_FACTOR, _SHARPNESS_FACTOR, fill_value=0)
+
+    print('data_transformation_pipeline:', data_transformation_pipeline)
+    print('label_transformation_pipeline:', label_transformation_pipeline)
 
     m_dataset = MapillaryDataset(data_path,
                                  labels_path,
@@ -61,5 +70,5 @@ if __name__ == '__main__':
         img, label = batch
         m_dataset.display_image(img[0])
         m_dataset.display_image(label[0])
-        if batch_num >= 0:
+        if batch_num >= 1:
             break
