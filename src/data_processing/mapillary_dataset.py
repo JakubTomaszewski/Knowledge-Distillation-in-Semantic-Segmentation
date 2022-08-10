@@ -7,7 +7,6 @@ Raises:
 """
 
 import os
-import random
 from pathlib import Path
 from typing import List, Tuple
 import warnings
@@ -18,6 +17,8 @@ import cv2
 import matplotlib.pyplot as plt
 from torch.utils.data import Dataset
 from torchvision.io import read_image
+
+from utils.helpers import set_randomness_seed, torch_image_to_numpy
 
 
 class MapillaryDataset(Dataset):
@@ -188,19 +189,6 @@ class MapillaryDataset(Dataset):
 
 
 # Helper functions
-
-def torch_image_to_numpy(image):
-    return image.permute(1, 2, 0).numpy()
-
-def set_randomness_seed(seed):
-    """Sets a seed for computations performed by torch and random library.
-
-    Args:
-        seed (int): random seed to be set
-    """
-    random.seed(seed)
-    torch.manual_seed(seed)
-
 
 def get_first_filename_match(filenames, pattern_filename):
     """_summary_
