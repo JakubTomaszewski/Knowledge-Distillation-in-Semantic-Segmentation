@@ -8,7 +8,7 @@ Raises:
 
 import os
 from pathlib import Path
-from typing import List, Tuple
+from typing import Callable, List, Tuple
 import warnings
 
 import numpy as np
@@ -30,15 +30,15 @@ class MapillaryDataset(Dataset):
     def __init__(self,
                  data_path: Path,
                  labels_path: Path,
-                 sample_transformation=None,
-                 label_transformation=None) -> None:
+                 sample_transformation: Callable=None,
+                 label_transformation: Callable=None) -> None:
         """Initializes the Mapillary Dataset class.
 
         Args:
             data_path (Path): path to directory with samples
             labels_path (Path): path to directory with labels
-            sample_transformation: transformation to be applied to each data sample
-            label_transformation: transformation to be applied to each label
+            sample_transformation (Callable): transformation to be applied to each data sample
+            label_transformation (Callable): transformation to be applied to each label
 
         Raises:
             OSError: raised when the provided data or labels path does not exist
@@ -131,7 +131,7 @@ class MapillaryDataset(Dataset):
                 label = self.label_transformation(label)
         return sample, label
 
-    def _transform_sample_and_label(self, 
+    def _transform_sample_and_label(self,
                                    sample: torch.Tensor,
                                    label: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
         """Transforms both sample and label while ensuring the same random transformation parameters.

@@ -1,3 +1,5 @@
+import sys
+from argparse import ArgumentParser
 from typing import Tuple
 import numpy as np
 import torchvision
@@ -13,92 +15,65 @@ from torchvision.transforms import (
                                     RandomAutocontrast
                                     )
 
-from data_processing.transformers.random_transform_choice import RandomTransformChoice
+sys.path.append('..')
 
+from data_processing.transformers.random_transformer import RandomTransformer
 
-# TODO: Create argParser for transformation params
 
 
 def create_data_transformation_pipeline(img_shape: Tuple,
-                                        rotation_angle: int,
-                                        padding: int,
-                                        distortion_factor: float,
-                                        crop_factor: float,
-                                        sharpness_factor: float,
-                                        fill_value: int=0
+                                        config: ArgumentParser,
                                         ) -> torchvision.transforms.Compose:
     """Generates a training data transformation pipeline.
 
     Args:
-        img_shape (Tuple): _description_
-        rotation_angle (int): _description_
-        padding (int): _description_
-        distortion_factor (float): _description_
-        crop_factor (float): _description_
-        sharpness_factor (float): _description_
-        fill_value (int, optional): _description_. Defaults to 0.
+        img_shape (Tuple): shape of the image: (height, width)
+        config (argparse.ArgumentParser): data transformation config
 
     Returns:
-        torchvision.transforms.Compose: _description_
+        torchvision.transforms.Compose: image transformation pipeline
     """
 
     aug_transformers = [
-            CenterCrop((np.array(img_shape) * crop_factor).astype(int)),
-            RandomRotation(rotation_angle, fill=fill_value),
-            RandomPerspective(distortion_factor, p=1, fill=fill_value),
-            RandomAdjustSharpness(sharpness_factor, p=1),
+            CenterCrop((np.array(img_shape) * config.crop_factor).astype(int)),
+            RandomRotation(config.max_rotation_angle, fill=config.fill_value),
+            RandomPerspective(config.distortion_factor, p=1, fill=config.fill_value),
+            RandomAdjustSharpness(config.sharpness_factor, p=1),
             RandomAutocontrast(p=1),
-            Pad(padding, fill=fill_value)
+            Pad(config.padding, config.fill_value)
         ]
-
-    random_picker = RandomTransformChoice(aug_transformers, num_choices=3)
-    random_transformers = random_picker()
 
     return Compose(
         [
             Resize(img_shape),
-            Grayscale(1),
-            *random_transformers
+            Grayscale(),
+            RandomTransformer(aug_transformers, num_choices=config.num_transformers)
         ])
 
 
 def create_label_transformation_pipeline(img_shape: Tuple,
-                                         rotation_angle: int,
-                                         padding: int,
-                                         distortion_factor: float,
-                                         crop_factor: float,
-                                         sharpness_factor: float,
-                                         fill_value: int=0
+                                         config: ArgumentParser,
                                          ) -> torchvision.transforms.Compose:
     """Generates a training label transformation pipeline.
 
     Args:
-        img_shape (Tuple): _description_
-        rotation_angle (int): _description_
-        padding (int): _description_
-        distortion_factor (float): _description_
-        crop_factor (float): _description_
-        sharpness_factor (float): _description_
-        fill_value (int, optional): _description_. Defaults to 0.
+        img_shape (Tuple): shape of the image: (height, width)
+        config (argparse.ArgumentParser): label transformation config
 
     Returns:
-        torchvision.transforms.Compose: _description_
+        torchvision.transforms.Compose: image transformation pipeline
     """
-
     aug_transformers = [
-            CenterCrop((np.array(img_shape) * crop_factor).astype(int)),
-            RandomRotation(rotation_angle, fill=fill_value),
-            RandomPerspective(distortion_factor, p=1, fill=fill_value),
-            RandomAdjustSharpness(sharpness_factor, p=1),
-            RandomAutocontrast(p=1),
-            Pad(padding, fill=fill_value)
-        ]
-
-    random_picker = RandomTransformChoice(aug_transformers, num_choices=3)
-    random_transformers = random_picker()
+        CenterCrop((np.array(img_shape) * config.crop_factor).astype(int)),
+        RandomRotation(config.max_rotation_angle, fill=config.fill_value),
+        RandomPerspective(config.distortion_factor, p=1, fill=config.fill_value),
+        RandomAdjustSharpness(config.sharpness_factor, p=1),
+        RandomAutocontrast(p=1),
+        Pad(config.padding, config.fill_value)
+    ]
 
     return Compose(
         [
             Resize(img_shape),
-            *random_transformers
+            RandomTransformer(aug_transformers, num_choices=config.num_transformers)
         ])
