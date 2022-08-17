@@ -27,3 +27,19 @@ def set_randomness_seed(seed):
     random.seed(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)
+
+
+def get_device():
+    """Returns the available device for computation.
+
+    Returns:
+        torch.device: available device for computation
+    """
+    compute_device = None
+    if torch.cuda.is_available():
+        compute_device = torch.device('cuda')
+    elif torch.backends.mps.is_available():
+        compute_device = torch.device('mps')
+    else:
+        compute_device = torch.device('cpu')
+    return compute_device

@@ -1,8 +1,6 @@
 import sys
 from pathlib import Path
-import torch
 from torch.utils.data import DataLoader
-import numpy as np
 
 from data_processing.mapillary_dataset import MapillaryDataset
 from data_processing.data_transformations import (
@@ -12,27 +10,11 @@ from data_processing.data_transformations import (
 
 sys.path.append('..')
 
-from utils.helpers import set_randomness_seed
+from utils.helpers import set_randomness_seed, get_device
 from config.dataset_config import parse_dataset_config
 
 
 IMG_SIZE = (400, 600)
-
-
-def get_device():
-    """Returns the available device for computation.
-
-    Returns:
-        torch.device: available device for computation
-    """
-    compute_device = None
-    if torch.cuda.is_available():
-        compute_device = torch.device('cuda')
-    elif torch.backends.mps.is_available():
-        compute_device = torch.device('mps')
-    else:
-        compute_device = torch.device('cpu')
-    return compute_device
 
 
 if __name__ == '__main__':
@@ -44,10 +26,7 @@ if __name__ == '__main__':
     device = get_device()
     print(f'Available device: {device}')
 
-    set_randomness_seed(dataset_config.seed)
     data_transformation_pipeline = create_data_transformation_pipeline(IMG_SIZE, dataset_config)
-
-    set_randomness_seed(dataset_config.seed)
     label_transformation_pipeline = create_label_transformation_pipeline(IMG_SIZE, dataset_config)
 
     m_dataset = MapillaryDataset(data_path,
