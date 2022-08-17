@@ -182,7 +182,7 @@ class MapillaryDataset(Dataset):
     def get_sample(self, index):
         # TODO: loads and returns an image sample based on the provided index.
         pass
-    
+
     def get_label(self, index):
         # TODO: loads and returns an label based on the provided index.
         pass
@@ -209,7 +209,7 @@ def get_first_filename_match(filenames, pattern_filename):
 def get_corresponding_filename(pattern_filename: str, filenames: List[str]) -> str:
     """Finds a complete filename from the list corresponding to the provided pattern filename.
     Checks if the filenames match (omits the extensions). Then returns the complete filename (with the file extension).
-    
+
     Args:
         pattern_filename (str): complete pattern filename (with extension)
 

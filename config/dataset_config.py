@@ -11,7 +11,7 @@ def parse_dataset_config() -> argparse.ArgumentParser:
 
     # Transformations
     data_transformations = parser.add_argument_group()
-    data_transformations.add_argument('--seed', type=int, default=np.random.randint(2147483647), help='Randomness seed for data transformations')
+    data_transformations.add_argument('--seed', type=int, default=50, help='Randomness seed for data transformations')
     data_transformations.add_argument('--num_transformers', type=int, default=3, help='Number of random transformations to apply')
     data_transformations.add_argument('--max_rotation_angle', type=int, default=10, help='Max rotation angle')
     data_transformations.add_argument('--padding', type=int, default=20, help='Padding pixels')

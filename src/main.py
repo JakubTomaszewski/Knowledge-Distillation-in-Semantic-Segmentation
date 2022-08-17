@@ -20,6 +20,7 @@ if __name__ == '__main__':
     data_path = Path('../data/Mapillary_vistas_dataset/training/images')  # load from ArgParse
     labels_path = Path('../data/Mapillary_vistas_dataset/training/labels')
 
+    set_randomness_seed(dataset_config.seed)
     device = get_device()
     print(f'Available device: {device}')
 
