@@ -21,18 +21,17 @@ from data_processing.transformers.random_transformer import RandomTransformer
 
 
 
-def create_data_transformation_pipeline(img_shape: Tuple,
-                                        config: ArgumentParser,
+def create_data_transformation_pipeline(config: ArgumentParser,
                                         ) -> torchvision.transforms.Compose:
     """Generates a training data transformation pipeline.
 
     Args:
-        img_shape (Tuple): shape of the image: (height, width)
         config (argparse.ArgumentParser): data transformation config
 
     Returns:
         torchvision.transforms.Compose: image transformation pipeline
     """
+    img_shape = (config.img_height, config.img_width)
 
     aug_transformers = [
             CenterCrop((np.array(img_shape) * config.crop_factor).astype(int)),
@@ -51,18 +50,18 @@ def create_data_transformation_pipeline(img_shape: Tuple,
         ])
 
 
-def create_label_transformation_pipeline(img_shape: Tuple,
-                                         config: ArgumentParser,
+def create_label_transformation_pipeline(config: ArgumentParser,
                                          ) -> torchvision.transforms.Compose:
     """Generates a training label transformation pipeline.
 
     Args:
-        img_shape (Tuple): shape of the image: (height, width)
         config (argparse.ArgumentParser): label transformation config
 
     Returns:
         torchvision.transforms.Compose: image transformation pipeline
     """
+    img_shape = (config.img_height, config.img_width)
+
     aug_transformers = [
         CenterCrop((np.array(img_shape) * config.crop_factor).astype(int)),
         RandomRotation(config.max_rotation_angle, fill=config.fill_value),
