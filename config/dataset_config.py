@@ -1,9 +1,21 @@
 import argparse
-import numpy as np
+from pathlib import Path
 
 
 def parse_dataset_config() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description='U-Net dataset config parser')
+    parser = argparse.ArgumentParser(description='Image dataset config parser')
+
+    train_data_path = Path('../data/Mapillary_vistas_dataset/training/images')
+    train_labels_path = Path('../data/Mapillary_vistas_dataset/training/labels')
+
+    # Paths
+    parser.add_argument('--train_data_path', type=Path,
+                        help='Path to directory containing the training data',
+                        default=train_data_path)
+
+    parser.add_argument('--train_labels_path', type=Path,
+                        help='Path to directory containing the training labels',
+                        default=train_labels_path)
 
     # General
     parser.add_argument('--img_width', type=int, default=600, help='Desired width of the image')

@@ -17,9 +17,6 @@ from config.dataset_config import parse_dataset_config
 if __name__ == '__main__':
     dataset_config = parse_dataset_config()
 
-    data_path = Path('../data/Mapillary_vistas_dataset/training/images')  # load from ArgParse
-    labels_path = Path('../data/Mapillary_vistas_dataset/training/labels')
-
     set_randomness_seed(dataset_config.seed)
     device = get_device()
     print(f'Available device: {device}')
@@ -27,8 +24,8 @@ if __name__ == '__main__':
     data_transformation_pipeline = create_data_transformation_pipeline(dataset_config)
     label_transformation_pipeline = create_label_transformation_pipeline(dataset_config)
 
-    m_dataset = MapillaryDataset(data_path,
-                                 labels_path,
+    m_dataset = MapillaryDataset(dataset_config.train_data_path,
+                                 dataset_config.train_labels_path,
                                  sample_transformation=data_transformation_pipeline,
                                  label_transformation=label_transformation_pipeline)
 
