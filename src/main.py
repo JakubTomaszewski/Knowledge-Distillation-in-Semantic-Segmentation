@@ -1,3 +1,4 @@
+from multiprocessing.connection import wait
 import sys
 from pathlib import Path
 from torch.utils.data import DataLoader
@@ -27,7 +28,8 @@ if __name__ == '__main__':
     m_dataset = MapillaryDataset(dataset_config.train_data_path,
                                  dataset_config.train_labels_path,
                                  sample_transformation=data_transformation_pipeline,
-                                 label_transformation=label_transformation_pipeline)
+                                 label_transformation=label_transformation_pipeline,
+                                 json_class_names_file_path=dataset_config.json_class_names_file_path)
 
     m_dataloader = DataLoader(m_dataset, batch_size=1, shuffle=True)
 

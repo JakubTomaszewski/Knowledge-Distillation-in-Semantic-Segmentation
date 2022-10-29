@@ -7,6 +7,7 @@ Raises:
 """
 
 import os
+import json
 from pathlib import Path
 from typing import Callable, List, Tuple
 import warnings
@@ -31,7 +32,8 @@ class MapillaryDataset(Dataset):
                  data_path: Path,
                  labels_path: Path,
                  sample_transformation: Callable=None,
-                 label_transformation: Callable=None) -> None:
+                 label_transformation: Callable=None,
+                 json_class_names_file_path: Path=None) -> None:
         """Initializes the Mapillary Dataset class.
 
         Args:
@@ -39,6 +41,7 @@ class MapillaryDataset(Dataset):
             labels_path (Path): path to directory with labels
             sample_transformation (Callable): transformation to be applied to each data sample
             label_transformation (Callable): transformation to be applied to each label
+            classes_json_path (Path): path to json file containing colors and their corresponding class names
 
         Raises:
             OSError: raised when the provided data or labels path does not exist
@@ -58,6 +61,11 @@ class MapillaryDataset(Dataset):
 
         self.sample_transformation = sample_transformation
         self.label_transformation = label_transformation
+
+        if json_class_names_file_path is not None:
+            self.color_classname_dict = self._load_classes_from_json(json_class_names_file_path)
+        else:
+            self.color_classname_dict = None
 
     def __len__(self) -> int:
         """Returns the total number of samples.
@@ -93,6 +101,41 @@ class MapillaryDataset(Dataset):
         if self.sample_transformation is not None or self.label_transformation is not None:
             sample, label = self._handle_transformation(sample, label)
         return sample, label
+
+    def color_to_class(self, color: Tuple[int]):
+        """Returns the corresponding class name for a color provided.
+
+        Args:
+            color (Tuple[int]): 3 element int tuple representing an RGB color
+
+        Raises:
+            ValueError: if a json file with class names has not been provided during initialization
+
+        Returns:
+            str: corresponding class name (if exists in dict)
+            None: if color class was not found dict
+        """
+        if self.color_classname_dict is not None:
+            return self.color_classname_dict.get(color)
+        else:
+            raise ValueError('File with the class names has not been specified')
+
+    def _load_classes_from_json(self, json_path: Path) -> dict:
+        """Loads a json containing color labels and their corresponding class names.
+
+        Args:
+            json_path (Path): path to json file containing colors and their corresponding class names
+
+        Returns:
+            dict[Tuple: str]: dictionary containing a color tuple as a key, and the corresponding class name as value
+        """
+        with open(json_path, 'r', encoding='utf-8') as json_file:
+            labels = json.load(json_file)['labels']
+            color_class_dict = {}
+
+            for label in labels:
+                color_class_dict.update(self._extract_color_classname_pair(label))
+            return color_class_dict
 
     def _validate_data(self,
                        sample: torch.Tensor,
@@ -153,6 +196,9 @@ class MapillaryDataset(Dataset):
         set_randomness_seed(seed)
         label = self.label_transformation(label)
         return sample, label
+
+    def _extract_color_classname_pair(self, label_dict):
+        return {tuple(label_dict['color']): label_dict['readable']}
 
     @staticmethod
     def load_image(path: str):

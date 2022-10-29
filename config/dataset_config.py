@@ -7,6 +7,7 @@ def parse_dataset_config() -> argparse.ArgumentParser:
 
     train_data_path = Path('../data/Mapillary_vistas_dataset/training/images')
     train_labels_path = Path('../data/Mapillary_vistas_dataset/training/labels')
+    json_class_names_file_path = Path('../data/Mapillary_vistas_dataset/classes.json')
 
     # Paths
     parser.add_argument('--train_data_path', type=Path,
@@ -16,6 +17,10 @@ def parse_dataset_config() -> argparse.ArgumentParser:
     parser.add_argument('--train_labels_path', type=Path,
                         help='Path to directory containing the training labels',
                         default=train_labels_path)
+
+    parser.add_argument('--json_class_names_file_path', type=Path,
+                        help='Path to a file containing class names',
+                        default=json_class_names_file_path)
 
     # General
     parser.add_argument('--img_width', type=int, default=600, help='Desired width of the image')
