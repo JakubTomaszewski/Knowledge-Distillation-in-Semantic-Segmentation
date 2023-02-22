@@ -1,6 +1,5 @@
-from multiprocessing.connection import wait
 import sys
-from pathlib import Path
+import os
 from torch.utils.data import DataLoader
 
 from data_processing.mapillary_dataset import MapillaryDataset
@@ -9,7 +8,7 @@ from data_processing.data_transformations import (
                                                  create_label_transformation_pipeline
                                                  )
 
-sys.path.append('..')
+sys.path.append('.')
 
 from utils.helpers import set_randomness_seed, get_device
 from config.dataset_config import parse_dataset_config
@@ -34,6 +33,10 @@ if __name__ == '__main__':
     m_dataloader = DataLoader(m_dataset, batch_size=1, shuffle=True)
 
     img, label = m_dataset[0]
+
+    print('IMG', img)
+    
+    print('LABEL', label)
 
     m_dataset.display_image(img)
     m_dataset.display_image(label)

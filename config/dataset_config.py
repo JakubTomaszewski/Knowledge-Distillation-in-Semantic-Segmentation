@@ -5,9 +5,9 @@ from pathlib import Path
 def parse_dataset_config() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description='Image dataset config parser')
 
-    train_data_path = Path('../data/Mapillary_vistas_dataset/training/images')
-    train_labels_path = Path('../data/Mapillary_vistas_dataset/training/labels')
-    json_class_names_file_path = Path('../data/Mapillary_vistas_dataset/classes.json')
+    train_data_path = Path('data/Mapillary_vistas_dataset/training/images')
+    train_labels_path = Path('data/Mapillary_vistas_dataset/training/labels')
+    json_class_names_file_path = Path('data/Mapillary_vistas_dataset/classes.json')
 
     # Paths
     parser.add_argument('--train_data_path', type=Path,
