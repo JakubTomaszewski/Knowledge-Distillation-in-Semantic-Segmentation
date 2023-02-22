@@ -34,16 +34,14 @@ if __name__ == '__main__':
 
     img, label = m_dataset[0]
 
-    print('IMG', img)
-    
-    print('LABEL', label)
+    print("\n".join("{}\t{}".format(k, v) for k, v in m_dataset.color_classname_dict.items()))
 
-    m_dataset.display_image(img)
-    m_dataset.display_image(label)
+    # print('IMG', img)
+    # print('LABEL', label)
 
-    for batch_num, batch in enumerate(m_dataloader):
-        img, label = batch
-        m_dataset.display_image(img[0])
-        m_dataset.display_image(label[0])
-        if batch_num >= 1:
-            break
+    # for batch_num, batch in enumerate(m_dataloader):
+    #     img, label = batch
+    #     m_dataset.display_image(img[0])
+    #     m_dataset.display_image(label[0])
+    #     if batch_num >= 1:
+    #         break

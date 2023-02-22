@@ -102,21 +102,25 @@ class MapillaryDataset(Dataset):
             sample, label = self._handle_transformation(sample, label)
         return sample, label
 
-    def color_to_class(self, color: Tuple[int]):
-        """Returns the corresponding class name for a color provided.
+    def class_id_to_color(self, class_id: int) -> List:
+        """Returns the corresponding color for a given class_id.
 
         Args:
-            color (Tuple[int]): 3 element int tuple representing an RGB color
+            class_id (int): class id
 
         Raises:
-            ValueError: if a json file with class names has not been provided during initialization
+            ValueError: if a json file with classes has not been provided during initialization
 
         Returns:
-            str: corresponding class name (if exists in dict)
-            None: if color class was not found dict
+            Tuple: tuple of RGB values representing a color for the corresponding class id (if exists in dict)
+            None: if class id was not found in dict
         """
         if self.color_classname_dict is not None:
-            return self.color_classname_dict.get(color)
+            class_info_dict = self.color_classname_dict.get(class_id)
+            if class_info_dict is not None:
+                return class_info_dict.get('color')
+            else:
+                return None
         else:
             raise ValueError('File with the class names has not been specified')
 
@@ -124,17 +128,21 @@ class MapillaryDataset(Dataset):
         """Loads a json containing color labels and their corresponding class names.
 
         Args:
-            json_path (Path): path to json file containing colors and their corresponding class names
+            json_path (Path): path to json file containing class ids and their corresponding colors and class names
 
         Returns:
-            dict[Tuple: str]: dictionary containing a color tuple as a key, and the corresponding class name as value
+            dict[Tuple: str]: dictionary containing a class id as key and a dict of corresponding color and class name as value
         """
         with open(json_path, 'r', encoding='utf-8') as json_file:
             labels = json.load(json_file)['labels']
             color_class_dict = {}
 
-            for label in labels:
-                color_class_dict.update(self._extract_color_classname_pair(label))
+            for label_id, label in enumerate(labels):
+                color_class_dict[label_id] = {
+                    "color": tuple(label['color']),
+                    "label": label['name'],
+                    "name": label['readable']
+                }
             return color_class_dict
 
     def _validate_data(self,
@@ -196,9 +204,6 @@ class MapillaryDataset(Dataset):
         set_randomness_seed(seed)
         label = self.label_transformation(label)
         return sample, label
-
-    def _extract_color_classname_pair(self, label_dict):
-        return {tuple(label_dict['color']): label_dict['readable']}
 
     @staticmethod
     def load_image(path: str):
