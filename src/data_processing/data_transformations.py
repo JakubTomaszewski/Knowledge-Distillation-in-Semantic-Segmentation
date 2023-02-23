@@ -12,7 +12,8 @@ from torchvision.transforms import (
                                     Resize,
                                     RandomPerspective,
                                     RandomAdjustSharpness,
-                                    RandomAutocontrast
+                                    RandomAutocontrast,
+                                    InterpolationMode
                                     )
 
 sys.path.append('..')
@@ -37,15 +38,19 @@ def create_data_transformation_pipeline(config: ArgumentParser,
             CenterCrop((np.array(img_shape) * config.crop_factor).astype(int)),
             RandomRotation(config.max_rotation_angle, fill=config.fill_value),
             RandomPerspective(config.distortion_factor, p=1, fill=config.fill_value),
-            RandomAdjustSharpness(config.sharpness_factor, p=1),
-            RandomAutocontrast(p=1),
             Pad(config.padding, config.fill_value)
         ]
+
+    pixel_value_transformers = [
+        RandomAutocontrast(p=0.5),
+        RandomAdjustSharpness(config.sharpness_factor, p=0.5),
+    ]
 
     return Compose(
         [
             Resize(img_shape),
             Grayscale(),
+            # RandomTransformer(pixel_value_transformers, num_choices=1),
             RandomTransformer(aug_transformers, num_choices=config.num_transformers)
         ])
 
@@ -65,14 +70,12 @@ def create_label_transformation_pipeline(config: ArgumentParser,
     aug_transformers = [
         CenterCrop((np.array(img_shape) * config.crop_factor).astype(int)),
         RandomRotation(config.max_rotation_angle, fill=config.fill_value),
-        RandomPerspective(config.distortion_factor, p=1, fill=config.fill_value),
-        RandomAdjustSharpness(config.sharpness_factor, p=1),
-        RandomAutocontrast(p=1),
+        RandomPerspective(config.distortion_factor, p=1, fill=config.fill_value, interpolation=InterpolationMode.NEAREST),
         Pad(config.padding, config.fill_value)
     ]
 
     return Compose(
         [
-            Resize(img_shape),
+            Resize(img_shape, interpolation=InterpolationMode.NEAREST),
             RandomTransformer(aug_transformers, num_choices=config.num_transformers)
         ])

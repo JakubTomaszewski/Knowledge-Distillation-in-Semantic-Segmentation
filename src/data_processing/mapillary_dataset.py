@@ -63,9 +63,9 @@ class MapillaryDataset(Dataset):
         self.label_transformation = label_transformation
 
         if json_class_names_file_path is not None:
-            self.color_classname_dict = self._load_classes_from_json(json_class_names_file_path)
+            self.class_color_dict = self._load_classes_from_json(json_class_names_file_path)
         else:
-            self.color_classname_dict = None
+            self.class_color_dict = None
 
     def __len__(self) -> int:
         """Returns the total number of samples.
@@ -102,7 +102,7 @@ class MapillaryDataset(Dataset):
             sample, label = self._handle_transformation(sample, label)
         return sample, label
 
-    def class_id_to_color(self, class_id: int) -> List:
+    def get_color(self, class_id: int) -> List:
         """Returns the corresponding color for a given class_id.
 
         Args:
@@ -112,17 +112,24 @@ class MapillaryDataset(Dataset):
             ValueError: if a json file with classes has not been provided during initialization
 
         Returns:
-            Tuple: tuple of RGB values representing a color for the corresponding class id (if exists in dict)
+            List: array of RGB values representing a color for the corresponding class id (if exists in dict)
             None: if class id was not found in dict
         """
-        if self.color_classname_dict is not None:
-            class_info_dict = self.color_classname_dict.get(class_id)
+        if self.class_color_dict is not None:
+            class_info_dict = self.class_color_dict.get(class_id)
             if class_info_dict is not None:
-                return class_info_dict.get('color')
+                return list(class_info_dict.get('color'))
             else:
                 return None
         else:
             raise ValueError('File with the class names has not been specified')
+    
+    def apply_color_mask(self, img: np.ndarray):
+        masked_img = np.zeros((img.shape[0], img.shape[1], 3), dtype=np.uint8)
+        
+        for label_id in self.class_color_dict.keys():
+            masked_img[img == label_id] = self.get_color(label_id)
+        return masked_img
 
     def _load_classes_from_json(self, json_path: Path) -> dict:
         """Loads a json containing color labels and their corresponding class names.
@@ -219,7 +226,7 @@ class MapillaryDataset(Dataset):
         return read_image(path)
 
     @staticmethod
-    def display_image(image: torch.Tensor):
+    def display_torch_image(image: torch.Tensor):
         """Displays a torch.Tensor image using matplotlib.
 
         Args:
@@ -228,6 +235,16 @@ class MapillaryDataset(Dataset):
         numpy_img = torch_image_to_numpy(image)
         rgb_img = cv2.cvtColor(numpy_img, cv2.COLOR_BGR2RGB)
         plt.imshow(rgb_img)
+        plt.show()
+
+    @staticmethod
+    def display_numpy_image(image: np.ndarray):
+        """Displays a np.ndarray image using matplotlib.
+
+        Args:
+            image (np.ndarray): image in the form of np.ndarray(height, width, channels) 
+        """
+        plt.imshow(image)
         plt.show()
 
     def get_sample(self, index):

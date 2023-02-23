@@ -35,7 +35,7 @@ class RandomTransformer:
             raise ValueError('Not enough transforms to choose from')
         self.num_choices = num_choices
 
-    def __call__(self, sample: torch.Tensor) -> torch.Tensor:
+    def forward(self, sample: torch.Tensor) -> torch.Tensor:
         """Applies randomly chosen transforms to a given sample.
 
         Args:
@@ -49,3 +49,14 @@ class RandomTransformer:
         for transform in random_transforms:
             sample = transform(sample)
         return sample
+
+    def __call__(self, sample: torch.Tensor) -> torch.Tensor:
+        """Calls self.forward function.
+
+        Args:
+            sample (torch.Tensor): sample to be transformed
+
+        Returns:
+            torch.Tensor: transformed sample
+        """
+        return self.forward(sample)

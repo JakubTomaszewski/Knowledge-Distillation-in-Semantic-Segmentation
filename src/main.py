@@ -1,5 +1,5 @@
 import sys
-import os
+import time
 from torch.utils.data import DataLoader
 
 from data_processing.mapillary_dataset import MapillaryDataset
@@ -32,16 +32,23 @@ if __name__ == '__main__':
 
     m_dataloader = DataLoader(m_dataset, batch_size=1, shuffle=True)
 
-    img, label = m_dataset[0]
+    # print("\n".join("{}\t{}".format(k, v) for k, v in m_dataset.class_color_dict.items()))
 
-    print("\n".join("{}\t{}".format(k, v) for k, v in m_dataset.color_classname_dict.items()))
+    # img, label = m_dataset[0]
+    # m_dataset.display_torch_image(img)
+    # m_dataset.display_torch_image(label)
+    # masked_label = m_dataset.apply_color_mask(label.squeeze().numpy())
+    # m_dataset.display_numpy_image(masked_label)
+
 
     # print('IMG', img)
     # print('LABEL', label)
 
-    # for batch_num, batch in enumerate(m_dataloader):
-    #     img, label = batch
-    #     m_dataset.display_image(img[0])
-    #     m_dataset.display_image(label[0])
-    #     if batch_num >= 1:
-    #         break
+    for batch_num, batch in enumerate(m_dataloader):
+        img, label = batch
+        m_dataset.display_torch_image(img[0])
+        m_dataset.display_torch_image(label[0])
+        masked_label = m_dataset.apply_color_mask(label[0].squeeze().numpy())
+        m_dataset.display_numpy_image(masked_label)
+        if batch_num >= 1:
+            break
