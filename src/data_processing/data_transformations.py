@@ -48,10 +48,10 @@ def create_data_transformation_pipeline(config: ArgumentParser,
 
     return Compose(
         [
-            Resize(img_shape),
             Grayscale(),
             # RandomTransformer(pixel_value_transformers, num_choices=1),
-            RandomTransformer(aug_transformers, num_choices=config.num_transformers)
+            RandomTransformer(aug_transformers, num_choices=config.num_transformers),
+            Resize(img_shape)
         ])
 
 
@@ -76,6 +76,6 @@ def create_label_transformation_pipeline(config: ArgumentParser,
 
     return Compose(
         [
-            Resize(img_shape, interpolation=InterpolationMode.NEAREST),
-            RandomTransformer(aug_transformers, num_choices=config.num_transformers)
+            RandomTransformer(aug_transformers, num_choices=config.num_transformers),
+            Resize(img_shape, interpolation=InterpolationMode.NEAREST)
         ])
