@@ -132,6 +132,19 @@ class MapillaryDataset(Dataset):
         return masked_img
 
     def _load_classes_from_json(self, json_path: Path) -> dict:
+        """Loads a json containing class ids as keys and their corresponding class names and color labels as values.
+
+        Args:
+            json_path (Path): path to json file
+
+        Returns:
+            dict[Tuple: str]: dictionary containing a class id as key and a dict of corresponding color and class name as value
+        """
+        with open(json_path, 'r', encoding='utf-8') as json_file:
+            # Converting keys to int
+            return {int(k): v for k, v in json.load(json_file).items()}
+        
+    def _load_classes_from_mapillary_json(self, json_path: Path) -> dict:
         """Loads a json containing color labels and their corresponding class names.
 
         Args:
