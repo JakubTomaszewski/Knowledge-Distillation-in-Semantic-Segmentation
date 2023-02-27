@@ -43,3 +43,12 @@ def get_device():
     else:
         compute_device = torch.device('cpu')
     return compute_device
+
+
+def display_dict(dict_to_print):
+    """Displays a dict in a fancy way
+
+    Args:
+        dict_to_print (_type_): _description_
+    """
+    print("\n".join("{}:  {}".format(k, v) for k, v in sorted(dict_to_print.items())))
