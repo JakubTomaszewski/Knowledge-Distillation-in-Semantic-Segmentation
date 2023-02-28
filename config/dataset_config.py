@@ -25,6 +25,8 @@ def parse_dataset_config() -> argparse.ArgumentParser:
     # General
     parser.add_argument('--img_width', type=int, default=600, help='Desired width of the image')
     parser.add_argument('--img_height', type=int, default=400, help='Desired height of the image')
+    parser.add_argument('--batch_size', type=int, default=2, help='Batch size')
+    
 
     # Transformations
     data_transformations = parser.add_argument_group()

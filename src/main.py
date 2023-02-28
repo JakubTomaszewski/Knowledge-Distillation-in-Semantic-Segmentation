@@ -1,6 +1,6 @@
 import sys
-import time
 from torch.utils.data import DataLoader
+from utils.metrics import iou_score_per_class, evaluate_predictions
 
 from data_processing.mapillary_dataset import MapillaryDataset
 from data_processing.data_transformations import (
@@ -10,7 +10,7 @@ from data_processing.data_transformations import (
 
 sys.path.append('.')
 
-from utils.helpers import set_randomness_seed, get_device
+from utils.helpers import set_randomness_seed, get_device, display_dict
 from config.dataset_config import parse_dataset_config
 
 
@@ -30,25 +30,27 @@ if __name__ == '__main__':
                                  label_transformation=label_transformation_pipeline,
                                  json_class_names_file_path=dataset_config.json_class_names_file_path)
 
-    m_dataloader = DataLoader(m_dataset, batch_size=1, shuffle=True)
+    m_dataloader = DataLoader(m_dataset, batch_size=dataset_config.batch_size, shuffle=True)
 
-    # print("\n".join("{}\t{}".format(k, v) for k, v in m_dataset.class_color_dict.items()))
 
-    # img, label = m_dataset[0]
+    # img, label = m_dataset[50]
+    
     # m_dataset.display_torch_image(img)
     # m_dataset.display_torch_image(label)
     # masked_label = m_dataset.apply_color_mask(label.squeeze().numpy())
     # m_dataset.display_numpy_image(masked_label)
 
-
-    # print('IMG', img)
-    # print('LABEL', label)
-
     for batch_num, batch in enumerate(m_dataloader):
         img, label = batch
-        m_dataset.display_torch_image(img[0])
-        m_dataset.display_torch_image(label[0])
-        masked_label = m_dataset.apply_color_mask(label[0].squeeze().numpy())
-        m_dataset.display_numpy_image(masked_label)
-        if batch_num >= 1:
-            break
+        
+        mean_iou_per_class = evaluate_predictions(label, label, m_dataset.class_color_dict.keys())
+        display_dict(mean_iou_per_class)
+        
+        # m_dataset.display_torch_image(img[0])
+        # m_dataset.display_torch_image(label[0])
+        # masked_label = m_dataset.apply_color_mask(label[0].squeeze().numpy())
+        # m_dataset.display_numpy_image(masked_label)
+        # if batch_num >= 1:
+        #     break
+        
+        exit()
