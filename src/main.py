@@ -1,6 +1,6 @@
 import sys
 from torch.utils.data import DataLoader
-from utils.metrics import iou_score_per_class, evaluate_predictions
+from utils.metrics import Evaluator
 
 from data_processing.mapillary_dataset import MapillaryDataset
 from data_processing.data_transformations import (
@@ -32,6 +32,7 @@ if __name__ == '__main__':
 
     m_dataloader = DataLoader(m_dataset, batch_size=dataset_config.batch_size, shuffle=True)
 
+    evaluator = Evaluator(m_dataset.class_color_dict.keys())
 
     # img, label = m_dataset[50]
     
@@ -43,14 +44,21 @@ if __name__ == '__main__':
     for batch_num, batch in enumerate(m_dataloader):
         img, label = batch
         
-        mean_iou_per_class = evaluate_predictions(label, label, m_dataset.class_color_dict.keys())
-        display_dict(mean_iou_per_class)
+        evaluator.update_state(label, label)
+        # mean_iou_per_class = evaluate_predictions(label, label)
+        # display_dict(mean_iou_per_class)
         
         # m_dataset.display_torch_image(img[0])
         # m_dataset.display_torch_image(label[0])
         # masked_label = m_dataset.apply_color_mask(label[0].squeeze().numpy())
         # m_dataset.display_numpy_image(masked_label)
-        # if batch_num >= 1:
-        #     break
         
-        exit()
+        if batch_num >= 1:
+            break
+    
+    print(evaluator.mean_iou())
+    print(evaluator.mean_iou_per_class())
+    evaluator.reset_state()
+    print(evaluator.mean_iou())
+    print(evaluator.mean_iou_per_class())
+    
