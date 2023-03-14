@@ -6,7 +6,7 @@ from typing import List
 class Evaluator:
     """Evaluator class for calculating the Intersection Over Union metric (Jaccard Index)
     """
-    def __init__(self, class_labels: List) -> None:
+    def __init__(self, class_labels: List, ignore_classes: List=[]) -> None:
         """
         Args:
             class_labels (List): list containing all possible labels
@@ -18,6 +18,7 @@ class Evaluator:
 
         """
         self.class_labels = class_labels
+        self.ignore_classes = ignore_classes
         self.total_iou_per_class = defaultdict(float)
         self.class_appearances = defaultdict(int)
 
@@ -29,7 +30,7 @@ class Evaluator:
         """
         return self.mean_iou()
 
-    def update_state(self, predictions: torch.Tensor, labels: torch.Tensor) -> None:
+    def update_state(self, predictions: List[torch.Tensor], labels: List[torch.Tensor]) -> None:
         """Updates the Evaluator class internal state by calculating the Intersection Over Union (IoU) metric for each class
         and adding it to the total_iou_per_class dict for the corresponding class.
         The updates are performed based on the predictions and labels supplied.
@@ -41,7 +42,7 @@ class Evaluator:
         Raises:
             ValueError: when the provided predictions and labels lengths do not match
         """
-        if predictions.shape != labels.shape:
+        if len(predictions) != len(labels):
             raise ValueError('predictions and labels must have the same shape')
 
         for pred, label in zip(predictions, labels):
@@ -71,7 +72,7 @@ class Evaluator:
             print('No samples evaluated')
             return None
         else:
-            return sum(ious_per_class.values()) / len(ious_per_class)
+            return round(sum(ious_per_class.values()) / len(ious_per_class), 4)
 
     def mean_iou_per_class(self) -> dict:
         """Calculates the mean IoU value for each class.
@@ -81,7 +82,7 @@ class Evaluator:
         """
         iou_per_class_dict = {}
         for (class_id, total_iou), num_appearances in zip(self.total_iou_per_class.items(), self.class_appearances.values()):
-            iou_per_class_dict[class_id] = total_iou / num_appearances
+            iou_per_class_dict[class_id] = round(total_iou / num_appearances, 4)
         return iou_per_class_dict
 
     def iou_score_per_class(self, y_pred: torch.Tensor, y_true: torch.Tensor, class_labels: List) -> dict:
@@ -121,6 +122,8 @@ class Evaluator:
         class_stats = {}
 
         for label in class_labels:
+            if label in self.ignore_classes:
+                continue
             label_mask = y_true == label
             pred_mask = y_pred == label
 
