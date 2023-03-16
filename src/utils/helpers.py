@@ -29,20 +29,32 @@ def set_randomness_seed(seed):
     torch.manual_seed(seed)
 
 
-def get_device():
-    """Returns the available device for computation.
+def get_available_devices() -> list:
+    """Returns all available devices for computation.
 
     Returns:
-        torch.device: available device for computation
+        list: available device for computation
     """
-    compute_device = None
+    devices = ['cpu']
     if torch.cuda.is_available():
-        compute_device = torch.device('cuda')
-    elif torch.backends.mps.is_available():
-        compute_device = torch.device('mps')
+        devices.append('cuda')
+    if torch.backends.mps.is_available():
+        devices.append('mps')
+    print('Available devices:', devices)
+    return devices
+
+
+def available_torch_device(device):
+    """Returns the device available for computation.
+
+    Returns:
+        torch.device: device available for computation
+    """
+    if device in get_available_devices():
+        print(f'Chosen device: {device}')
+        return torch.device(device)
     else:
-        compute_device = torch.device('cpu')
-    return compute_device
+        return torch.device('cpu')
 
 
 def display_dict(dict_to_print):

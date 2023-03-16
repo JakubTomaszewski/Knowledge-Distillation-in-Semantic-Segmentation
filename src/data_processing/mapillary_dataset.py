@@ -18,6 +18,7 @@ import cv2
 import matplotlib.pyplot as plt
 from torch.utils.data import Dataset
 from torchvision.io import read_image
+from PIL import Image
 
 from utils.helpers import set_randomness_seed, torch_image_to_numpy
 
@@ -33,6 +34,7 @@ class MapillaryDataset(Dataset):
                  labels_path: Path,
                  sample_transformation: Callable=None,
                  label_transformation: Callable=None,
+                 data_preprocessor: Callable=None,
                  json_class_names_file_path: Path=None) -> None:
         """Initializes the Mapillary Dataset class.
 
@@ -59,13 +61,16 @@ class MapillaryDataset(Dataset):
         if len(self.sample_filenames) != len(self.label_filenames):
             warnings.warn('Number of samples does not match the number of labels.')
 
+        self.data_preprocessor = data_preprocessor
         self.sample_transformation = sample_transformation
         self.label_transformation = label_transformation
 
+        self.class_color_dict = None
+        self.num_classes = None
+        
         if json_class_names_file_path is not None:
             self.class_color_dict = self._load_classes_from_json(json_class_names_file_path)
-        else:
-            self.class_color_dict = None
+            self.num_classes = len(self.class_color_dict)
 
     def __len__(self) -> int:
         """Returns the total number of samples.
@@ -75,7 +80,7 @@ class MapillaryDataset(Dataset):
         """
         return len(self.sample_filenames)
 
-    def __getitem__(self, index) -> Tuple[torch.Tensor, torch.Tensor]:
+    def __getitem__(self, index) -> Tuple[torch.Tensor, torch.Tensor]:  # TODO: Add loading only image for testing (flag .is_test)
         """Loads a data sample and a corresponding label based on the provided index.
 
         Args:
@@ -93,13 +98,22 @@ class MapillaryDataset(Dataset):
         if label_filename is None:
             raise OSError(f'No label for such file {sample_filename}')
 
-        sample = self.load_image(str(self._data_path / sample_filename))
-        label = self.load_image(str(self._labels_path / label_filename))
-        self._validate_data(sample, label)
+        # sample = self.load_image(str(self._data_path / sample_filename))
+        # label = self.load_image(str(self._labels_path / label_filename))
+        sample = Image.open(str(self._data_path / sample_filename))
+        label = Image.open(str(self._labels_path / label_filename))
+        # self._validate_data(sample, label)
 
         # Checking if transformation should be applied
         if self.sample_transformation is not None or self.label_transformation is not None:
             sample, label = self._handle_transformation(sample, label)
+        
+        if self.data_preprocessor is not None:
+            # self.data_preprocessor(sample, label, return_tensors="pt")
+            inputs = self.data_preprocessor(sample, label, return_tensors="pt")  # TODO: Create an outer DataPreprocessor class
+            sample = inputs.pixel_values[0] #.squeeze()
+            label = inputs.labels[0] #.squeeze()
+        
         return sample, label
 
     def get_color(self, class_id: int) -> List:
@@ -246,8 +260,8 @@ class MapillaryDataset(Dataset):
             image (torch.Tensor): image in the form of torch.Tensor(channels, height, width) 
         """
         numpy_img = torch_image_to_numpy(image)
-        rgb_img = cv2.cvtColor(numpy_img, cv2.COLOR_BGR2RGB)
-        plt.imshow(rgb_img)
+        # rgb_img = cv2.cvtColor(numpy_img, cv2.COLOR_BGR2RGB)
+        plt.imshow(numpy_img)
         plt.show()
 
     @staticmethod
