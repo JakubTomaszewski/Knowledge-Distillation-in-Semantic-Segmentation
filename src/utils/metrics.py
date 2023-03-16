@@ -6,19 +6,24 @@ from typing import List
 class Evaluator:
     """Evaluator class for calculating the Intersection Over Union metric (Jaccard Index)
     """
-    def __init__(self, class_labels: List, ignore_classes: List=[]) -> None:
+    def __init__(self, 
+                 class_labels: List,
+                 ignore_classes: List=[],
+                 label_to_class_name: dict={}
+                 ) -> None:
         """
         Args:
             class_labels (List): list containing all possible labels
-        
+            ignore_classes (List, optional): class labels which should be ignored during evaluation. Defaults to [].
+            label_to_class_name (dict, optional): dict mapping labels to their corresponding class names
+            
         Initializes:
-            class_labels (List): list containing all possible labels
             total_iou_per_class (dict): dict with class labels as keys and the total IoU scores as values
             class_appearances (dict): dict with class labels as keys and number of their appearances as values
-
         """
         self.class_labels = class_labels
         self.ignore_classes = ignore_classes
+        self.label_to_class_name = label_to_class_name
         self.total_iou_per_class = defaultdict(float)
         self.class_appearances = defaultdict(int)
 
@@ -82,6 +87,8 @@ class Evaluator:
         """
         iou_per_class_dict = {}
         for (class_id, total_iou), num_appearances in zip(self.total_iou_per_class.items(), self.class_appearances.values()):
+            if class_id in self.label_to_class_name.keys():
+                class_id = f'ID: {class_id}, Name: {self.label_to_class_name[class_id]}'
             iou_per_class_dict[class_id] = round(total_iou / num_appearances, 4)
         return iou_per_class_dict
 

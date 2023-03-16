@@ -110,8 +110,8 @@ class MapillaryDataset(Dataset):
         
         if self.data_preprocessor is not None:
             # self.data_preprocessor(sample, label, return_tensors="pt")
-            inputs = self.data_preprocessor(sample, label, return_tensors="pt")  # TODO: Create an outer DataPreprocessor class
-            sample = inputs.pixel_values[0] #.squeeze()
+            inputs = self.data_preprocessor(sample, label, return_tensors="pt")
+            sample = inputs.pixel_values[0] # # TODO: .squeeze()
             label = inputs.labels[0] #.squeeze()
         
         return sample, label

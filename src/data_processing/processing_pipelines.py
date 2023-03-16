@@ -18,23 +18,18 @@ def create_data_preprocessing_pipeline(config: ArgumentParser) -> Callable:
     return data_preprocessor
 
 
-def create_prediction_postprocessing_pipeline(config: ArgumentParser) -> Callable:
+def create_prediction_postprocessing_pipeline() -> Callable:
     """Factory function which creates a prediction postprocessing pipeline
     used for extracting argmax values and resizing the prediction to its original shape.
-
-    Args:
-        config (argparse.ArgumentParser): data config
 
     Returns:
         Callable: prediction postprocessing pipeline
     """
-    img_shape = (config.img_height, config.img_width)
-
-    def prediction_postprocessing_pipeline(output_mask):
-        pred_mask_resized = nn.functional.interpolate(output_mask,  # outputs.logits.detach().cpu()
-                            size=img_shape,  # img.shape[2:], # (height, width)
+    def prediction_postprocessing_pipeline(output_mask, img_shape):
+        pred_mask_resized = nn.functional.interpolate(output_mask,
+                            size=img_shape, # (height, width)
                             mode='bilinear',
                             align_corners=False)
-        y_pred = pred_mask_resized.argmax(dim=1)[0]
+        y_pred = pred_mask_resized.argmax(dim=1)
         return y_pred
     return prediction_postprocessing_pipeline

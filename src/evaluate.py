@@ -1,8 +1,10 @@
 import sys
+import matplotlib.pyplot as plt
 from tqdm import tqdm
 from torch.utils.data import DataLoader
 from transformers import SegformerForSemanticSegmentation
 
+from utils.helpers import display_dict
 from data_processing.mapillary_dataset import MapillaryDataset
 from data_processing.transformation_pipelines import (
                                                       create_evaluation_data_transformation_pipeline,
@@ -23,6 +25,7 @@ from utils.metrics import Evaluator
 if __name__ == '__main__':
     # Config
     evaluation_config = parse_evaluation_config()
+    img_shape = (evaluation_config.img_height, evaluation_config.img_width)
 
     # Data transformations
     data_transformation_pipeline = create_evaluation_data_transformation_pipeline(evaluation_config)
@@ -59,17 +62,26 @@ if __name__ == '__main__':
         label = label.to(evaluation_config.device)
         
         outputs = model(img).logits
-        predictions = prediction_postprocessing_pipeline(outputs)
+        predictions = prediction_postprocessing_pipeline(outputs, img_shape)
 
         evaluator.update_state([predictions], [label])
         # results = iou_score.compute(predictions=[predictions], references=[label], num_labels=dataset.num_classes, ignore_index=evaluation_config.void_class_id)
 
-        if batch_num >= 5:
+        # # Display prediction and label
+        # fig, ax = plt.subplots(2, figsize=(8, 8))
+        # ax[0].imshow(predictions[0].squeeze())
+        # ax[0].set_title('Prediction')
+        # ax[1].imshow(label[0].squeeze())
+        # ax[1].set_title('Ground truth')
+        # plt.show()
+
+        if batch_num >= 2:
             break
 
     print('----------------------')
     print('Mean IoU', evaluator.mean_iou())
-    print('Class IoU', evaluator.mean_iou_per_class())
+    print('Class IoU')
+    display_dict(evaluator.mean_iou_per_class())
     print('----------------------')
 
     # print('Hugging face IoU')
