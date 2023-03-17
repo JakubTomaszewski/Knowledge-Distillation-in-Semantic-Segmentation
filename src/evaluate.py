@@ -33,7 +33,7 @@ if __name__ == '__main__':
     
     # Data processing
     data_preprocessing_pipeline = create_data_preprocessing_pipeline(evaluation_config)
-    prediction_postprocessing_pipeline = create_prediction_postprocessing_pipeline(evaluation_config)
+    prediction_postprocessing_pipeline = create_prediction_postprocessing_pipeline()
 
     # Dataset
     dataset = MapillaryDataset(evaluation_config.val_data_path,
@@ -60,7 +60,7 @@ if __name__ == '__main__':
         img, label = batch
         img = img.to(evaluation_config.device)
         label = label.to(evaluation_config.device)
-        
+
         outputs = model(img).logits
         predictions = prediction_postprocessing_pipeline(outputs, img_shape)
 
