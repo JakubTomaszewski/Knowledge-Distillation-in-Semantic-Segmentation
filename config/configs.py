@@ -52,8 +52,8 @@ def create_pipeline_config():
                         default=model_checkpoint)
     
     # General
-    parser.add_argument('--img_width', type=int, default=512, help='Desired width of the image')
-    parser.add_argument('--img_height', type=int, default=512, help='Desired height of the image')
+    parser.add_argument('--img_width', type=int, default=2048, help='Desired width of the image')
+    parser.add_argument('--img_height', type=int, default=1024, help='Desired height of the image')
     parser.add_argument('--batch_size', type=int, default=2, help='Batch size')
     parser.add_argument('--device', type=available_torch_device, choices=[torch.device('cpu'), torch.device('cuda'), torch.device('mps')], help='Device used for computation', default='cpu')  # ['cpu', 'cuda', 'mps']
 
