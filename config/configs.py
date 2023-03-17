@@ -38,6 +38,9 @@ def create_dataset_config() -> argparse.ArgumentParser:
                         help='Path to a file containing class names',
                         default=json_class_names_file_path)
 
+    # General
+    parser.add_argument('--void_class_id', type=int, default=65, help='Label of the void class which should be skipped during training and evaluation')
+
     return parser
 
 
@@ -60,13 +63,8 @@ def create_pipeline_config():
     # Transformations
     data_transformations = parser.add_argument_group()
     data_transformations.add_argument('--seed', type=int, default=50, help='Randomness seed for data transformations')
-    data_transformations.add_argument('--num_transforms', type=int, default=2, help='Number of random transformations to apply')
-    data_transformations.add_argument('--max_rotation_angle', type=int, default=10, help='Max rotation angle')
-    data_transformations.add_argument('--padding', type=int, default=20, help='Padding pixels')
-    data_transformations.add_argument('--distortion_factor', type=float, default=0.05, help='Perspective transform factor')
-    data_transformations.add_argument('--crop_factor', type=float, default=0.9, help='Image center crop factor')
-    data_transformations.add_argument('--sharpness_factor', type=float, default=0.5, help='Default image sharpness factor')
-    data_transformations.add_argument('--void_class_id', type=int, default=65, help='Value with which to fill the blank pixels after transformations')
+    data_transformations.add_argument('--crop_size', type=tuple, default=(1024, 1024), help='Size of the image after cropping (height, width)')
+    data_transformations.add_argument('--horizontal_flip_probability', type=float, default=0.5, help='Probability of the horizontal flip image transformation')
     
     return parser
 
@@ -84,6 +82,9 @@ def parse_train_config() -> argparse.ArgumentParser:
 def parse_evaluation_config() -> argparse.ArgumentParser:
     dataset_config = create_dataset_config()
     pipeline_config = create_pipeline_config()
+
+    pipeline_config.img_width = 2048
+    pipeline_config.img_height = 1024
 
     parser = argparse.ArgumentParser(description='Evaluation script config parser',
                                      parents=[dataset_config, pipeline_config])

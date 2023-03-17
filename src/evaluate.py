@@ -6,11 +6,11 @@ from transformers import SegformerForSemanticSegmentation
 
 from utils.helpers import display_dict
 from data_processing.mapillary_dataset import MapillaryDataset
-from data_processing.transformation_pipelines import (
+from data_processing.pipelines.transformation_pipelines import (
                                                       create_evaluation_data_transformation_pipeline,
                                                       create_evaluation_label_transformation_pipeline
                                                       )
-from data_processing.processing_pipelines import (
+from data_processing.pipelines.processing_pipelines import (
                                                   create_data_preprocessing_pipeline,
                                                   create_prediction_postprocessing_pipeline
                                                   )
@@ -25,6 +25,7 @@ from utils.metrics import Evaluator
 if __name__ == '__main__':
     # Config
     evaluation_config = parse_evaluation_config()
+    
     img_shape = (evaluation_config.img_height, evaluation_config.img_width)
 
     # Data transformations

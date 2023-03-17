@@ -3,11 +3,11 @@ from torch.utils.data import DataLoader
 from utils.metrics import Evaluator
 
 from data_processing.mapillary_dataset import MapillaryDataset
-from data_processing.transformation_pipelines import (
+from data_processing.pipelines.transformation_pipelines import (
                                                  create_data_transformation_pipeline,
                                                  create_label_transformation_pipeline
                                                  )
-from data_processing.processing_pipelines import (
+from data_processing.pipelines.processing_pipelines import (
                                                 create_data_preprocessing_pipeline,
                                                 create_prediction_postprocessing_pipeline
                                                 )
@@ -32,7 +32,7 @@ if __name__ == '__main__':
     
     # Data processing
     data_preprocessing_pipeline = create_data_preprocessing_pipeline(train_config)
-    prediction_postprocessing_pipeline = create_prediction_postprocessing_pipeline(train_config)
+    prediction_postprocessing_pipeline = create_prediction_postprocessing_pipeline()
     
     # Dataset
     m_dataset = MapillaryDataset(train_config.train_data_path,
