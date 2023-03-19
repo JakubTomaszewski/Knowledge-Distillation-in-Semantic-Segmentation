@@ -86,7 +86,7 @@ class Evaluator:
             dict: dict with mean IoU values for each class in the following formar { 'class_id': IoU value }
         """
         iou_per_class_dict = {}
-        for (class_id, total_iou), num_appearances in zip(self.total_iou_per_class.items(), self.class_appearances.values()):
+        for (class_id, total_iou), (_, num_appearances) in zip(sorted(self.total_iou_per_class.items()), sorted(self.class_appearances.items())):
             if class_id in self.label_to_class_name.keys():
                 class_id = f'ID: {class_id}, Name: {self.label_to_class_name[class_id]}'
             iou_per_class_dict[class_id] = round(total_iou / num_appearances, 4)

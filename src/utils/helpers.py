@@ -63,4 +63,4 @@ def display_dict(dict_to_print):
     Args:
         dict_to_print (_type_): _description_
     """
-    print("\n".join("{}:  {}".format(k, v) for k, v in sorted(dict_to_print.items())))
+    print("\n".join("{}:  {}".format(k, v) for k, v in dict_to_print.items()))

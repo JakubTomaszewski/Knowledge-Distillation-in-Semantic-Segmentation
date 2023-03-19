@@ -98,8 +98,6 @@ class MapillaryDataset(Dataset):
         if label_filename is None:
             raise OSError(f'No label for such file {sample_filename}')
 
-        # sample = self.load_image(str(self._data_path / sample_filename))
-        # label = self.load_image(str(self._labels_path / label_filename))
         sample = Image.open(str(self._data_path / sample_filename))
         label = Image.open(str(self._labels_path / label_filename))
         # self._validate_data(sample, label)
@@ -112,7 +110,7 @@ class MapillaryDataset(Dataset):
             # self.data_preprocessor(sample, label, return_tensors="pt")
             inputs = self.data_preprocessor(sample, label, return_tensors="pt")
             sample = inputs.pixel_values[0] # # TODO: .squeeze()
-            label = inputs.labels[0] #.squeeze()
+            label = inputs.labels.squeeze()
         
         return sample, label
 
