@@ -105,13 +105,12 @@ class MapillaryDataset(Dataset):
         # Checking if transformation should be applied
         if self.sample_transformation is not None or self.label_transformation is not None:
             sample, label = self._handle_transformation(sample, label)
-        
+
         if self.data_preprocessor is not None:
-            # self.data_preprocessor(sample, label, return_tensors="pt")
             inputs = self.data_preprocessor(sample, label, return_tensors="pt")
-            sample = inputs.pixel_values[0] # # TODO: .squeeze()
+            sample = inputs.pixel_values.squeeze()
             label = inputs.labels.squeeze()
-        
+
         return sample, label
 
     def get_color(self, class_id: int) -> List:
