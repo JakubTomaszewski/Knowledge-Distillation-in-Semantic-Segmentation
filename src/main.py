@@ -1,7 +1,9 @@
 import sys
 from torch.utils.data import DataLoader
-from utils.metrics import Evaluator
 
+from utils.metrics import Evaluator
+from utils.helpers import set_randomness_seed, display_dict
+from config.configs import parse_train_config
 from data_processing.mapillary_dataset import MapillaryDataset
 from data_processing.pipelines.transformation_pipelines import (
                                                  create_data_transformation_pipeline,
@@ -11,13 +13,6 @@ from data_processing.pipelines.processing_pipelines import (
                                                 create_data_preprocessing_pipeline,
                                                 create_prediction_postprocessing_pipeline
                                                 )
-
-
-
-sys.path.append('.')
-
-from utils.helpers import set_randomness_seed, display_dict
-from config.configs import parse_train_config
 
 
 if __name__ == '__main__':

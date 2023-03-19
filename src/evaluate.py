@@ -1,9 +1,12 @@
 import sys
+# import evaluate
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 from torch.utils.data import DataLoader
 from transformers import SegformerForSemanticSegmentation
 
+from config.configs import parse_evaluation_config
+from utils.metrics import Evaluator
 from utils.helpers import display_dict
 from data_processing.mapillary_dataset import MapillaryDataset
 from data_processing.pipelines.transformation_pipelines import (
@@ -14,12 +17,6 @@ from data_processing.pipelines.processing_pipelines import (
                                                   create_data_preprocessing_pipeline,
                                                   create_prediction_postprocessing_pipeline
                                                   )
-
-sys.path.append('.')
-sys.path.append('..')
-
-from config.configs import parse_evaluation_config
-from utils.metrics import Evaluator
 
     
 if __name__ == '__main__':
@@ -66,7 +63,7 @@ if __name__ == '__main__':
         predictions = prediction_postprocessing_pipeline(outputs, img_shape)
 
         evaluator.update_state([predictions], [label])
-        # results = iou_score.compute(predictions=[predictions], references=[label], num_labels=dataset.num_classes, ignore_index=evaluation_config.void_class_id)
+        # iou_score.add_batch(predictions=predictions, references=label)
 
         # # Display prediction and label
         # fig, ax = plt.subplots(2, figsize=(8, 8))
@@ -86,5 +83,6 @@ if __name__ == '__main__':
     print('----------------------')
 
     # print('Hugging face IoU')
+    # results = iou_score.compute(num_labels=dataset.num_classes, ignore_index=evaluation_config.void_class_id)
     # print('Mean IoU', results['mean_iou'])
     # print('Class IoU', results['per_category_iou'])
