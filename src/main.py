@@ -45,7 +45,7 @@ if __name__ == '__main__':
     # model.to(evaluation_config.device)
 
     # Metrics
-    evaluator = Evaluator(class_labels=m_dataset.class_color_dict.keys(),
+    evaluator = Evaluator(class_labels=m_dataset.id2name.keys(),
                           ignore_classes=[train_config.void_class_id])
 
     for batch_num, batch in enumerate(m_dataloader):

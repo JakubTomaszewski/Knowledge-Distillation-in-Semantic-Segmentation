@@ -43,7 +43,14 @@ class MapillaryDataset(Dataset):
             labels_path (Path): path to directory with labels
             sample_transformation (Callable): transformation to be applied to each data sample
             label_transformation (Callable): transformation to be applied to each label
+            data_preprocessor (Callable): preprocessing operations to be applied to each data sample
             classes_json_path (Path): path to json file containing colors and their corresponding class names
+
+        Initializes:
+            sample_filenames (list): list of all sample filenames in provided data_path
+            label_filenames (list): list of all label filenames in provided data_path
+            id2name (dict): dictionary containing a class id as key and a corresponding class name as value. Initialized if json_class_names_file_path is provided.
+            id2color (dict): dictionary containing a class id as key and a corresponding color as value. Initialized if json_class_names_file_path is provided.
 
         Raises:
             OSError: raised when the provided data or labels path does not exist
@@ -65,12 +72,13 @@ class MapillaryDataset(Dataset):
         self.sample_transformation = sample_transformation
         self.label_transformation = label_transformation
 
-        self.class_color_dict = None
+        self.id2name = None
+        self.id2color = None
         self.num_classes = None
-        
+
         if json_class_names_file_path is not None:
-            self.class_color_dict = self._load_classes_from_json(json_class_names_file_path)
-            self.num_classes = len(self.class_color_dict)
+            self.id2name, self.id2color = self._read_classes_from_json(json_class_names_file_path)
+            self.num_classes = len(self.id2name)
 
     def __len__(self) -> int:
         """Returns the total number of samples.
@@ -126,36 +134,36 @@ class MapillaryDataset(Dataset):
             List: array of RGB values representing a color for the corresponding class id (if exists in dict)
             None: if class id was not found in dict
         """
-        if self.class_color_dict is not None:
-            class_info_dict = self.class_color_dict.get(class_id)
-            if class_info_dict is not None:
-                return list(class_info_dict.get('color'))
-            else:
-                return None
+        if self.id2color is not None:
+            return list(self.id2color.get(class_id))
         else:
-            raise ValueError('File with the class names has not been specified')
-    
+            return None
+
     def apply_color_mask(self, img: np.ndarray):
         masked_img = np.zeros((img.shape[0], img.shape[1], 3), dtype=np.uint8)
         
-        for label_id in self.class_color_dict.keys():
+        for label_id in self.id2color.keys():
             masked_img[img == label_id] = self.get_color(label_id)
         return masked_img
 
-    def _load_classes_from_json(self, json_path: Path) -> dict:
+    def _read_classes_from_json(self, json_path: Path) -> Tuple[dict]:
         """Loads a json containing class ids as keys and their corresponding class names and color labels as values.
 
         Args:
             json_path (Path): path to json file
 
         Returns:
-            dict[Tuple: str]: dictionary containing a class id as key and a dict of corresponding color and class name as value
+            Tuple[dict]: 2 dictionaries:
+                * id2name - mapping label id's to class names
+                * id2color - mapping label id's to colors
         """
         with open(json_path, 'r', encoding='utf-8') as json_file:
-            # Converting keys to int
-            return {int(k): v for k, v in json.load(json_file).items()}
+            classes_dict = json.load(json_file).items()
+            id2name = {int(k): v['name'] for k, v in classes_dict}
+            id2color = {int(k): v['color'] for k, v in classes_dict}
+            return id2name, id2color
         
-    def _load_classes_from_mapillary_json(self, json_path: Path) -> dict:
+    def _read_classes_from_mapillary_json(self, json_path: Path) -> dict:
         """Loads a json containing color labels and their corresponding class names.
 
         Args:
