@@ -31,7 +31,7 @@ if __name__ == '__main__':
     
     # Data processing
     data_preprocessing_pipeline = create_data_preprocessing_pipeline(evaluation_config)
-    prediction_postprocessing_pipeline = create_prediction_postprocessing_pipeline()
+    prediction_postprocessing_pipeline = create_prediction_postprocessing_pipeline(img_shape)
 
     # Dataset
     dataset = MapillaryDataset(evaluation_config.val_data_path,
@@ -55,7 +55,7 @@ if __name__ == '__main__':
 
     # Evaluation loop
     for batch_num, batch in tqdm(enumerate(eval_dataloader)):
-        img, label = batch
+        img, label = batch['pixel_values'], batch['labels']
         img = img.to(evaluation_config.device)
         label = label.to(evaluation_config.device)
 

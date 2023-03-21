@@ -119,7 +119,7 @@ class MapillaryDataset(Dataset):
             sample = inputs.pixel_values.squeeze()
             label = inputs.labels.squeeze()
 
-        return sample, label
+        return {'pixel_values': sample, 'labels': label}
 
     def get_color(self, class_id: int) -> List:
         """Returns the corresponding color for a given class_id.
