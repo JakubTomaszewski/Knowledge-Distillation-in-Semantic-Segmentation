@@ -78,7 +78,7 @@ class MapillaryDataset(Dataset):
 
         if json_class_names_file_path is not None:
             self.id2name, self.id2color = self._read_classes_from_json(json_class_names_file_path)
-            self.num_classes = len(self.id2name)
+            self.num_classes = len(self.id2name) - 1
 
     def __len__(self) -> int:
         """Returns the total number of samples.
