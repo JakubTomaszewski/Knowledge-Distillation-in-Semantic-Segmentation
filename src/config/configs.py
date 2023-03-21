@@ -12,8 +12,8 @@ from utils.helpers import available_torch_device
 def create_dataset_config() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description='Image dataset config parser',  add_help=False)
 
-    train_data_path = Path('data/Mapillary_vistas_dataset/training_small/images')  # TODO: switch back to training dir
-    train_labels_path = Path('data/Mapillary_vistas_dataset/training_small/labels')  # TODO: switch back to training dir
+    train_data_path = Path('data/Mapillary_vistas_dataset/training/images')
+    train_labels_path = Path('data/Mapillary_vistas_dataset/training/labels')
     val_data_path = Path('data/Mapillary_vistas_dataset/validation/images')
     val_labels_path = Path('data/Mapillary_vistas_dataset/validation/labels')
     json_class_names_file_path = Path('data/Mapillary_vistas_dataset/classes.json')
@@ -47,24 +47,28 @@ def create_dataset_config() -> argparse.ArgumentParser:
 
 def create_pipeline_config():
     parser = argparse.ArgumentParser(description='Segmentation model pipeline config parser',  add_help=False)
-    
-    model_checkpoint = "nvidia/segformer-b0-finetuned-cityscapes-1024-1024"
-    
+
+    model_checkpoint = "nvidia/segformer-b0-finetuned-cityscapes-512-1024"
+
     # Model
     parser.add_argument('--model_checkpoint', type=str,
                         help='Model checkpoint version',
                         default=model_checkpoint)
     
     # General
-    parser.add_argument('--img_width', type=int, default=1024, help='Desired width of the image')
     parser.add_argument('--img_height', type=int, default=512, help='Desired height of the image')
-    parser.add_argument('--batch_size', type=int, default=8, help='Batch size')
-    parser.add_argument('--device', type=available_torch_device, choices=[torch.device('cpu'), torch.device('cuda'), torch.device('mps')], help='Device used for computation', default='cpu')  # ['cpu', 'cuda', 'mps']
+    parser.add_argument('--img_width', type=int, default=1024, help='Desired width of the image')
+    parser.add_argument('--batch_size', type=int, default=1, help='Batch size')
+    parser.add_argument('--device',
+                        choices=[torch.device('cpu'), torch.device('cuda'), torch.device('mps')],
+                        type=available_torch_device,
+                        default='cpu',
+                        help='Device used for computation')
 
     # Transformations
     data_transformations = parser.add_argument_group()
     data_transformations.add_argument('--seed', type=int, default=50, help='Randomness seed')
-    data_transformations.add_argument('--crop_size', type=tuple, default=(512, 512), help='Size of the image after cropping (height, width)')
+    data_transformations.add_argument('--crop_size', type=tuple, default=(512, 1024), help='Size of the image after cropping (height, width)')
     data_transformations.add_argument('--horizontal_flip_probability', type=float, default=0.5, help='Probability of the horizontal flip image transformation')
     
     return parser
