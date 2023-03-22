@@ -1,9 +1,7 @@
-import sys
 # import evaluate
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 from torch.utils.data import DataLoader
-from transformers import SegformerForSemanticSegmentation
 
 from config.configs import parse_evaluation_config
 from utils.metrics import Evaluator
@@ -17,6 +15,7 @@ from data_processing.pipelines.processing_pipelines import (
                                                   create_data_preprocessing_pipeline,
                                                   create_prediction_postprocessing_pipeline
                                                   )
+from models.segformer import create_segformer_model
 
     
 if __name__ == '__main__':
@@ -45,7 +44,8 @@ if __name__ == '__main__':
     eval_dataloader = DataLoader(dataset, batch_size=evaluation_config.batch_size)
 
     # Model
-    model = SegformerForSemanticSegmentation.from_pretrained(evaluation_config.model_checkpoint)
+    model = create_segformer_model(evaluation_config, dataset.num_classes)
+    # model = SegformerForSemanticSegmentation.from_pretrained(evaluation_config.model_checkpoint)
     model.to(evaluation_config.device)
 
     # Metrics
@@ -62,7 +62,7 @@ if __name__ == '__main__':
         outputs = model(img).logits
         predictions = prediction_postprocessing_pipeline(outputs, img_shape)
 
-        evaluator.update_state([predictions], [label])
+        evaluator.update_state([predictions.numpy()], [label.numpy()])
         # iou_score.add_batch(predictions=predictions, references=label)
 
         # # Display prediction and label
@@ -78,8 +78,8 @@ if __name__ == '__main__':
 
     print('----------------------')
     print('Mean IoU', evaluator.mean_iou())
-    print('Class IoU')
-    display_dict(evaluator.mean_iou_per_class())
+    print('Class IoU:')
+    display_dict(evaluator.iou_per_class())
     print('----------------------')
 
     # print('Hugging face IoU')
