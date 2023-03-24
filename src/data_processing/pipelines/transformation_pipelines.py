@@ -1,4 +1,3 @@
-import sys
 from argparse import ArgumentParser
 import torchvision
 from torchvision.transforms import (Compose,
@@ -8,9 +7,6 @@ from torchvision.transforms import (Compose,
                                     RandomHorizontalFlip,
                                     InterpolationMode
                                     )
-
-# sys.path.append('..')
-# from data_processing.transforms.transforms import RandomResize, PhotoMetricDistortion
 
 
 
@@ -29,7 +25,7 @@ def create_data_transformation_pipeline(config: ArgumentParser,
     return Compose(
         [
             PILToTensor(),
-            Resize(img_shape, interpolation=InterpolationMode.BILINEAR, antialias=True),  # TODO: create RandomResize class with a param: ratio_range=(0.5, 2.0)
+            Resize(img_shape, interpolation=InterpolationMode.BILINEAR),  # TODO: create RandomResize class with a param: ratio_range=(0.5, 2.0)
             RandomCrop(config.crop_size),
             RandomHorizontalFlip(config.horizontal_flip_probability),
             # PhotoMetricDistortion(),
@@ -52,7 +48,7 @@ def create_label_transformation_pipeline(config: ArgumentParser,
     return Compose(
         [
             PILToTensor(),
-            Resize(img_shape, interpolation=InterpolationMode.NEAREST_EXACT, antialias=True),  # TODO: create RandomResize class with a param: ratio_range=(0.5, 2.0)
+            Resize(img_shape, interpolation=InterpolationMode.NEAREST),  # TODO: create RandomResize class with a param: ratio_range=(0.5, 2.0)
             RandomCrop(config.crop_size),
             RandomHorizontalFlip(config.horizontal_flip_probability),
             # PhotoMetricDistortion(),
