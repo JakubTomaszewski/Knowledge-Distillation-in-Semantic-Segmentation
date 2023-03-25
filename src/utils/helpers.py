@@ -64,3 +64,15 @@ def display_dict(dict_to_print):
         dict_to_print (_type_): _description_
     """
     print("\n".join("{}:  {}".format(k, v) for k, v in dict_to_print.items()))
+
+
+def is_image(path: str) -> bool:
+    """Checks if a given path is an image.
+
+    Args:
+        path (str): path to check
+
+    Returns:
+        bool: True if the path is an image, False otherwise
+    """
+    return path.endswith(('.jpg', '.jpeg', '.png', '.bmp', '.tif', '.tiff'))
