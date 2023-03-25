@@ -14,13 +14,12 @@ import warnings
 
 import numpy as np
 import torch
-import cv2
 import matplotlib.pyplot as plt
 from torch.utils.data import Dataset
 from torchvision.io import read_image
 from PIL import Image
 
-from utils.helpers import set_randomness_seed, torch_image_to_numpy
+from utils.helpers import set_randomness_seed, torch_image_to_numpy, is_image
 
 
 class MapillaryDataset(Dataset):
@@ -62,7 +61,7 @@ class MapillaryDataset(Dataset):
 
         self._data_path = data_path
         self._labels_path = labels_path
-        self.sample_filenames = os.listdir(self._data_path)
+        self.sample_filenames = [file for file in os.listdir(self._data_path) if is_image(file)]
         self.label_filenames = os.listdir(self._labels_path)
 
         if len(self.sample_filenames) != len(self.label_filenames):
@@ -265,7 +264,6 @@ class MapillaryDataset(Dataset):
             image (torch.Tensor): image in the form of torch.Tensor(channels, height, width) 
         """
         numpy_img = torch_image_to_numpy(image)
-        # rgb_img = cv2.cvtColor(numpy_img, cv2.COLOR_BGR2RGB)
         plt.imshow(numpy_img)
         plt.show()
 
