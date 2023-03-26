@@ -79,11 +79,15 @@ def parse_train_config() -> argparse.ArgumentParser:
     pipeline_config = create_pipeline_config()
 
     output_dir_path = Path('src/models/model_checkpoints')
+    output_log_dir_path = Path('src/models/model_logs')
+    output_mlflow_log_dir_path = Path('src/models/mlflow_logs')
 
     parser = argparse.ArgumentParser(description='Training script config parser',
                                      parents=[dataset_config, pipeline_config])
 
     parser.add_argument('--output_dir', type=Path, default=output_dir_path, help='The output directory where the model predictions and checkpoints will be written')
+    parser.add_argument('--output_log_dir', type=Path, default=output_log_dir_path, help='The output directory where the model logs will be written')
+    parser.add_argument('--mlflow_log_dir', type=Path, default=output_mlflow_log_dir_path, help='The output directory where the mlflow logs will be written')
     parser.add_argument('--overwrite_output_dir', type=bool, default=False, help='Denotes if the contents of output_dir should be overwritten when training a new')
 
     # Hyperparameters

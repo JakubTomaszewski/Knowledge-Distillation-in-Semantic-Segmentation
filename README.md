@@ -36,3 +36,17 @@ or
 $ conda create --name <env> python=3.8
 $ pip install -r requirements.txt
 ```
+
+
+## Train
+
+```sh
+$ python src/train.py
+```
+
+
+## Visualize training logs
+
+```sh
+mlflow ui --backend-store-uri src/models/mlflow_logs
+```

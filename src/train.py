@@ -1,12 +1,15 @@
+import os
 import torch
 import torch.nn as nn
 # import evaluate
 import matplotlib.pyplot as plt
-from tqdm import tqdm
 from typing import List, Callable
+
+import mlflow
 from torch.utils.data import Dataset
 from transformers import TrainingArguments, Trainer, SchedulerType, TrainerCallback
 from transformers.training_args import OptimizerNames
+from transformers.integrations import MLflowCallback
 
 from config.configs import parse_train_config
 from models.segformer import create_segformer_model
@@ -25,7 +28,16 @@ from data_processing.pipelines.processing_pipelines import (
                                                   )
 
 
-def create_training_args(config):   
+def configure_mlflow_logger(config):
+    os.environ["MLFLOW_EXPERIMENT_NAME"]=config.model_checkpoint
+    os.environ["MLFLOW_FLATTEN_PARAMS"]="1"
+    
+    mlflow.create_experiment(config.model_checkpoint, str(config.mlflow_log_dir))
+    mlflow.set_tracking_uri(config.mlflow_log_dir)
+    
+
+
+def create_training_args(config):
     return TrainingArguments(
         run_name=config.model_checkpoint,
         output_dir=config.output_dir,
@@ -36,11 +48,10 @@ def create_training_args(config):
 
         # ------ Logging & Saving ------ #
         logging_strategy='epoch',
+        logging_dir=config.output_log_dir,
+        report_to='mlflow',
         save_strategy='epoch',
         save_total_limit=10,
-        # logging_strategy='epoch',
-        # logging_steps=2,
-        # report_to='mlflow',
 
         # ------ Train hyperparameters: ------ #
         num_train_epochs=config.num_epochs,
@@ -76,7 +87,7 @@ def create_trainer(model: nn.Module,
         eval_dataset=eval_dataset,
         preprocess_logits_for_metrics=prediction_postprocessing_pipeline,
         compute_metrics=metric,
-        # callbacks=callbacks,
+        callbacks=callbacks,
     )
 
 
@@ -121,6 +132,13 @@ if __name__ == '__main__':
     # Model
     model = create_segformer_model(train_config, train_dataset.num_classes, train_dataset.id2name)
     
+    # Logging
+    configure_mlflow_logger(train_config)
+    train_callbacks = [
+        MLflowCallback()
+        ]
+    
+    
     # Trainer
     training_args = create_training_args(train_config)
     trainer = create_trainer(model,
@@ -128,6 +146,7 @@ if __name__ == '__main__':
                              train_dataset,
                              eval_dataset,
                              prediction_postprocessing_pipeline,
-                             metric=evaluator.compute_metrics
+                             metric=evaluator.compute_metrics,
+                             callbacks=train_callbacks
                              )
     trainer.train()
