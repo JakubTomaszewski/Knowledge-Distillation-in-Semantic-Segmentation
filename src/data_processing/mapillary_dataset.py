@@ -9,6 +9,8 @@ Raises:
 import os
 import json
 from pathlib import Path
+from collections import defaultdict
+from tqdm import tqdm
 from typing import Callable, List, Tuple
 import warnings
 
@@ -145,6 +147,17 @@ class MapillaryDataset(Dataset):
             masked_img[img == label_id] = self.get_color(label_id)
         return masked_img
 
+    def get_label_distribution(self):
+        print('Counting classes...')
+        class_counts = defaultdict(int)
+
+        for label_filename in tqdm(self.label_filenames):
+            label = np.array(Image.open(str(self._labels_path / label_filename)))
+            class_ids = np.unique(label)
+            for class_id in class_ids:
+                class_counts[class_id] += 1
+        return class_counts
+
     def _read_classes_from_json(self, json_path: Path) -> Tuple[dict]:
         """Loads a json containing class ids as keys and their corresponding class names and color labels as values.
 
@@ -161,7 +174,7 @@ class MapillaryDataset(Dataset):
             id2name = {int(k): v['name'] for k, v in classes_dict}
             id2color = {int(k): v['color'] for k, v in classes_dict}
             return id2name, id2color
-        
+
     def _read_classes_from_mapillary_json(self, json_path: Path) -> dict:
         """Loads a json containing color labels and their corresponding class names.
 
@@ -244,7 +257,7 @@ class MapillaryDataset(Dataset):
         return sample, label
 
     @staticmethod
-    def load_image(path: str):
+    def load_image(path: str): # TODO: Move to helpers
         """Loads an image from a given path as a torch.Tensor.
 
         Args:
@@ -257,7 +270,7 @@ class MapillaryDataset(Dataset):
         return read_image(path)
 
     @staticmethod
-    def display_torch_image(image: torch.Tensor):
+    def display_torch_image(image: torch.Tensor): # TODO: Move to helpers
         """Displays a torch.Tensor image using matplotlib.
 
         Args:
@@ -268,7 +281,7 @@ class MapillaryDataset(Dataset):
         plt.show()
 
     @staticmethod
-    def display_numpy_image(image: np.ndarray):
+    def display_numpy_image(image: np.ndarray): # TODO: Move to helpers
         """Displays a np.ndarray image using matplotlib.
 
         Args:
@@ -276,14 +289,6 @@ class MapillaryDataset(Dataset):
         """
         plt.imshow(image)
         plt.show()
-
-    def get_sample(self, index):
-        # TODO: loads and returns an image sample based on the provided index.
-        pass
-
-    def get_label(self, index):
-        # TODO: loads and returns an label based on the provided index.
-        pass
 
 
 # Helper functions
