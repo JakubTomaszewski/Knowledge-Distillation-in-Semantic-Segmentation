@@ -61,7 +61,7 @@ if __name__ == '__main__':
         outputs = model(img).logits
         predictions = prediction_postprocessing_pipeline(outputs, None)
 
-        evaluator.update_state([predictions.numpy()], [label.numpy()])
+        evaluator.update_state([predictions.cpu().numpy()], [label.cpu().numpy()])
         # iou_score.add_batch(predictions=predictions, references=label)
 
         # # Display prediction and label
