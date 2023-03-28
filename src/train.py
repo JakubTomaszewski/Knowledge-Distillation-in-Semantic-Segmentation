@@ -1,9 +1,9 @@
 import os
 import torch
 import torch.nn as nn
-# import evaluate
-import matplotlib.pyplot as plt
+from copy import deepcopy
 from typing import List, Callable
+from argparse import Namespace
 
 import mlflow
 from torch.utils.data import Dataset
@@ -12,7 +12,7 @@ from transformers.training_args import OptimizerNames
 from transformers.integrations import MLflowCallback
 
 from config.configs import parse_train_config
-from models.segformer import create_segformer_model
+from models.segformer import create_segformer_model_for_train
 from utils.metrics import Evaluator
 from utils.helpers import display_dict
 from data_processing.mapillary_dataset import MapillaryDataset
@@ -28,16 +28,16 @@ from data_processing.pipelines.processing_pipelines import (
                                                   )
 
 
-def configure_mlflow_logger(config):
+def configure_mlflow_logger(config: Namespace):
     os.environ["MLFLOW_EXPERIMENT_NAME"]=config.model_checkpoint
     os.environ["MLFLOW_FLATTEN_PARAMS"]="1"
-    
+
     mlflow.create_experiment(config.model_checkpoint, str(config.mlflow_log_dir))
     mlflow.set_tracking_uri(config.mlflow_log_dir)
-    
 
 
-def create_training_args(config):
+
+def create_training_args(config: Namespace):
     return TrainingArguments(
         run_name=config.model_checkpoint,
         output_dir=config.output_dir,
@@ -93,8 +93,8 @@ def create_trainer(model: nn.Module,
 
 if __name__ == '__main__':
     # Config
-    train_config = parse_train_config()
     evaluation_config = parse_train_config()
+    train_config = parse_train_config()
     
     img_shape = (train_config.img_height, train_config.img_width)
 
@@ -126,19 +126,21 @@ if __name__ == '__main__':
 
     # Metrics
     evaluator = Evaluator(class_labels=train_dataset.id2name.keys(),
-                          ignore_classes=[train_config.void_class_id])
-    # iou_score = evaluate.load('mean_iou')
+                          ignore_index=train_config.void_class_id)
+
+    # Model config
+    id2name = deepcopy(train_dataset.id2name)
+    id2name.pop(train_config.void_class_id)
 
     # Model
-    model = create_segformer_model(train_config, train_dataset.num_classes, train_dataset.id2name)
-    
+    model = create_segformer_model_for_train(train_config, train_dataset.num_classes, id2name)
+
     # Logging
     configure_mlflow_logger(train_config)
     train_callbacks = [
         MLflowCallback()
         ]
-    
-    
+
     # Trainer
     training_args = create_training_args(train_config)
     trainer = create_trainer(model,
