@@ -16,7 +16,6 @@ def create_segformer_model_for_train(config: Mapping,
             ignore_mismatched_sizes=True,
             id2label=id2label,
             label2id=label2id,
-            local_files_only=True
         )
     model.config.semantic_loss_ignore_index = config.void_class_id
     return model
@@ -33,5 +32,6 @@ def create_segformer_model_for_inference(config: Mapping,
             config.model_checkpoint,
             # id2label=id2label,
             # label2id=label2id,
+            # local_files_only=True
         )
     return model

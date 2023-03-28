@@ -185,6 +185,8 @@ class Evaluator:
         Returns:
             dict: dict containing the class labels and the corresponding statistics in the following format:
                 { 'class_id': (TP, FP, FN) }
+        
+        Acknowledgement: https://huggingface.co/spaces/evaluate-metric/mean_iou/blob/main/mean_iou.py
         """
         class_tp = defaultdict(int)
         class_fp = defaultdict(int)
