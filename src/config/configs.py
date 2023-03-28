@@ -16,6 +16,7 @@ def create_dataset_config() -> argparse.ArgumentParser:
     train_labels_path = Path('data/Mapillary_vistas_dataset/training/labels')
     val_data_path = Path('data/Mapillary_vistas_dataset/validation/images')
     val_labels_path = Path('data/Mapillary_vistas_dataset/validation/labels')
+    test_data_path = Path('data/Mapillary_vistas_dataset/testing/images')
     json_class_names_file_path = Path('data/Mapillary_vistas_dataset/classes.json')
 
     # Paths
@@ -34,6 +35,10 @@ def create_dataset_config() -> argparse.ArgumentParser:
     parser.add_argument('--val_labels_path', type=Path,
                         help='Path to directory containing the validation labels',
                         default=val_labels_path)
+
+    parser.add_argument('--test_data_path', type=Path,
+                        help='Path to directory containing the testing data',
+                        default=test_data_path)
 
     parser.add_argument('--json_class_names_file_path', type=Path,
                         help='Path to a file containing class names',
@@ -58,7 +63,7 @@ def create_pipeline_config():
     # General
     parser.add_argument('--img_height', type=int, default=512, help='Desired height of the image')
     parser.add_argument('--img_width', type=int, default=1024, help='Desired width of the image')
-    parser.add_argument('--batch_size', type=int, default=1, help='Batch size')
+    parser.add_argument('--batch_size', type=int, default=8, help='Batch size')
     parser.add_argument('--device',
                         choices=[torch.device('cpu'), torch.device('cuda'), torch.device('mps')],
                         type=available_torch_device,
@@ -74,7 +79,7 @@ def create_pipeline_config():
     return parser
 
 
-def parse_train_config() -> argparse.ArgumentParser:
+def parse_train_config() -> argparse.Namespace:
     dataset_config = create_dataset_config()
     pipeline_config = create_pipeline_config()
 
@@ -99,14 +104,30 @@ def parse_train_config() -> argparse.ArgumentParser:
     return parser.parse_args()
 
 
-def parse_evaluation_config() -> argparse.ArgumentParser:
+def parse_evaluation_config() -> argparse.Namespace:
     dataset_config = create_dataset_config()
     pipeline_config = create_pipeline_config()
-
-    pipeline_config.img_width = 2048
-    pipeline_config.img_height = 1024
 
     parser = argparse.ArgumentParser(description='Evaluation script config parser',
                                      parents=[dataset_config, pipeline_config])
 
-    return parser.parse_args()
+    args = parser.parse_args()
+    args.img_width = 2048
+    args.img_height = 1024
+    args.batch_size = 1
+
+    return args
+
+
+def parse_test_config() -> argparse.Namespace:
+    dataset_config = create_dataset_config()
+    pipeline_config = create_pipeline_config()
+    parser = argparse.ArgumentParser(description='Test script config parser',
+                                     parents=[dataset_config, pipeline_config])
+
+    args = parser.parse_args()
+    args.img_width = 2048
+    args.img_height = 1024
+    args.batch_size = 1
+
+    return args
