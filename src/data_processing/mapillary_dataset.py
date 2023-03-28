@@ -11,12 +11,14 @@ import json
 from pathlib import Path
 from collections import defaultdict
 from tqdm import tqdm
+from torchvision.transforms.functional import pil_to_tensor
 from typing import Callable, List, Tuple
 import warnings
 
 import numpy as np
 import torch
 import matplotlib.pyplot as plt
+from copy import deepcopy
 from torch.utils.data import Dataset
 from torchvision.io import read_image
 from PIL import Image
@@ -32,7 +34,7 @@ class MapillaryDataset(Dataset):
     """
     def __init__(self,
                  data_path: Path,
-                 labels_path: Path,
+                 labels_path: Path=None,
                  sample_transformation: Callable=None,
                  label_transformation: Callable=None,
                  data_preprocessor: Callable=None,
@@ -41,7 +43,7 @@ class MapillaryDataset(Dataset):
 
         Args:
             data_path (Path): path to directory with samples
-            labels_path (Path): path to directory with labels
+            labels_path (Path): path to directory with labels. Defaults to None - used for testing.
             sample_transformation (Callable): transformation to be applied to each data sample
             label_transformation (Callable): transformation to be applied to each label
             data_preprocessor (Callable): preprocessing operations to be applied to each data sample
@@ -58,16 +60,21 @@ class MapillaryDataset(Dataset):
         """
         if not data_path.exists():
             raise OSError(f'Path: {data_path} does not exist')
-        if not labels_path.exists():
-            raise OSError(f'Path: {labels_path} does not exist')
 
         self._data_path = data_path
         self._labels_path = labels_path
+        
         self.sample_filenames = [file for file in os.listdir(self._data_path) if is_image(file)]
-        self.label_filenames = os.listdir(self._labels_path)
 
-        if len(self.sample_filenames) != len(self.label_filenames):
-            warnings.warn('Number of samples does not match the number of labels.')
+        if self._labels_path is not None:
+            if not labels_path.exists():
+                raise OSError(f'Path: {labels_path} does not exist')
+            self._is_test = False
+            self.label_filenames = os.listdir(self._labels_path)
+            if len(self.sample_filenames) != len(self.label_filenames):
+                warnings.warn('Number of samples does not match the number of labels.')
+        else:
+            self._is_test = True
 
         self.data_preprocessor = data_preprocessor
         self.sample_transformation = sample_transformation
@@ -89,7 +96,7 @@ class MapillaryDataset(Dataset):
         """
         return len(self.sample_filenames)
 
-    def __getitem__(self, index) -> Tuple[torch.Tensor, torch.Tensor]:  # TODO: Add loading only image for testing (flag .is_test)
+    def __getitem__(self, index):  # TODO: Add loading only image for testing (flag .is_test)
         """Loads a data sample and a corresponding label based on the provided index.
 
         Args:
@@ -101,6 +108,27 @@ class MapillaryDataset(Dataset):
         Returns:
             Tuple[torch.Tensor, torch.Tensor]: tuple containing transformed sample and label
         """
+        if self._is_test:
+            return self.get_sample(index)
+        else:
+            return self.get_sample_and_label(index)
+
+    def get_sample(self, index: int):
+        sample_filename = self.sample_filenames[index]
+        sample = Image.open(str(self._data_path / sample_filename))
+        raw_sample = deepcopy(sample)
+
+        # Checking if transformation should be applied
+        if self.sample_transformation is not None:
+            sample, _ = self._handle_transformation(sample)
+
+        if self.data_preprocessor is not None:
+            inputs = self.data_preprocessor(sample, return_tensors="pt")
+            sample = inputs.pixel_values.squeeze()
+
+        return {'pixel_values': sample, 'raw_img': pil_to_tensor(raw_sample)}
+    
+    def get_sample_and_label(self, index: int):
         sample_filename = self.sample_filenames[index]
         label_filename = get_corresponding_filename(sample_filename, self.label_filenames)
 
@@ -155,7 +183,7 @@ class MapillaryDataset(Dataset):
             label = np.array(Image.open(str(self._labels_path / label_filename)))
             class_ids = np.unique(label)
             for class_id in class_ids:
-                class_counts[class_id] += 1
+                class_counts[int(class_id)] += 1
         return class_counts
 
     def _read_classes_from_json(self, json_path: Path) -> Tuple[dict]:
@@ -214,7 +242,8 @@ class MapillaryDataset(Dataset):
 
     def _handle_transformation(self,
                                sample: torch.Tensor,
-                               label: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
+                               label: torch.Tensor=None
+                               ) -> Tuple[torch.Tensor, torch.Tensor]:
         """Handles transformation both for the sample and the label.
 
         Args:
