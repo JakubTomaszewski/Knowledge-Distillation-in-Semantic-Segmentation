@@ -1,0 +1,14 @@
+# This file may be used to create an environment using:
+# $ conda create --name <env> --file <this file>
+evaluate=0.4.0=pypi_0
+matplotlib=3.7.1=pypi_0
+mlflow=2.2.2=pypi_0
+numpy=1.23.5=pypi_0
+opencv-python=4.7.0.72=pypi_0
+pillow=9.4.0=pypi_0
+pip=23.0.1=pyhd8ed1ab_0
+python=3.8.13=hd3575e6_0_cpython
+torch=1.13.1=pypi_0
+torchvision=0.14.1=pypi_0
+tqdm=4.65.0=pypi_0
+transformers=4.26.1=pypi_0
