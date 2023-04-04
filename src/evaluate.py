@@ -69,9 +69,6 @@ if __name__ == '__main__':
         evaluator.update_state([predictions.cpu().numpy()], [label.cpu().numpy()])
         # iou_score.add_batch(predictions=predictions, references=label)
 
-        if batch_num >= 2:
-            break
-
     print('----------------------')
     print('Mean IoU', evaluator.internal_state_mean_iou())
     print('Class IoU:')
