@@ -50,7 +50,7 @@ def create_training_args(config: Namespace):
         logging_dir=config.output_log_dir,
         report_to='mlflow',
         save_strategy='epoch',
-        save_total_limit=10,
+        save_total_limit=30,
 
         # ------ Train hyperparameters: ------ #
         num_train_epochs=config.num_epochs,
@@ -127,7 +127,7 @@ if __name__ == '__main__':
     evaluator = Evaluator(class_labels=train_dataset.id2name.keys(),
                           ignore_index=train_config.void_class_id)
 
-    # Model config
+    # Class mappings
     id2name = deepcopy(train_dataset.id2name)
     id2name.pop(train_config.void_class_id)
 

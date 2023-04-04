@@ -1,6 +1,7 @@
 # import evaluate
 import matplotlib.pyplot as plt
 from tqdm import tqdm
+from copy import deepcopy
 from torch.utils.data import DataLoader
 
 from config.configs import parse_evaluation_config
@@ -43,8 +44,12 @@ if __name__ == '__main__':
     # Dataloader
     eval_dataloader = DataLoader(dataset, batch_size=evaluation_config.batch_size)
 
+    # Class mappings
+    id2name = deepcopy(dataset.id2name)
+    id2name.pop(evaluation_config.void_class_id)
+
     # Model
-    model = create_segformer_model_for_inference(evaluation_config, dataset.num_classes)
+    model = create_segformer_model_for_inference(evaluation_config, id2name)
     model.to(evaluation_config.device)
 
     # Metrics
@@ -64,13 +69,6 @@ if __name__ == '__main__':
         evaluator.update_state([predictions.cpu().numpy()], [label.cpu().numpy()])
         # iou_score.add_batch(predictions=predictions, references=label)
 
-        # # Display prediction and label
-        # fig, ax = plt.subplots(2, figsize=(8, 8))
-        # ax[0].imshow(predictions[0].squeeze())
-        # ax[0].set_title('Prediction')
-        # ax[1].imshow(label[0].squeeze())
-        # ax[1].set_title('Ground truth')
-        # plt.show()
         if batch_num >= 2:
             break
 

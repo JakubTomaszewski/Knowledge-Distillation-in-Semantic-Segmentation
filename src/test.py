@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import cv2
 from tqdm import tqdm
+from copy import deepcopy
 from torch.utils.data import DataLoader
 from torchvision.transforms.functional import resize
 
@@ -32,8 +33,12 @@ if __name__ == '__main__':
     # Dataloader
     test_dataloader = DataLoader(dataset, batch_size=test_config.batch_size)
 
+    # Class mappings
+    id2name = deepcopy(dataset.id2name)
+    id2name.pop(test_config.void_class_id)
+
     # Model
-    model = create_segformer_model_for_inference(test_config)
+    model = create_segformer_model_for_inference(test_config, id2name)
     model.to(test_config.device)
 
     # Prediction loop
@@ -56,5 +61,5 @@ if __name__ == '__main__':
         ax[1].set_title('Ground truth')
         plt.show()
 
-        if batch_num >= 2:
+        if batch_num >= 0:
             break

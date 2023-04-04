@@ -24,14 +24,13 @@ def create_segformer_model_for_train(config: Mapping,
 def create_segformer_model_for_inference(config: Mapping,
                                          id2label: Optional[Mapping] = None
                                          ) -> PreTrainedModel:
-    # label2id=None
-    # if id2label is not None:
-    #     label2id = {label: class_id for class_id, label in id2label.items()}
+    label2id = None
+    if id2label is not None:
+        label2id = {label: class_id for class_id, label in id2label.items()}
 
     model = SegformerForSemanticSegmentation.from_pretrained(
             config.model_checkpoint,
-            # id2label=id2label,
-            # label2id=label2id,
-            # local_files_only=True
+            id2label=id2label,
+            label2id=label2id,
         )
     return model
