@@ -61,8 +61,8 @@ def create_pipeline_config():
                         default=model_checkpoint)
     
     # General
-    parser.add_argument('--img_height', type=int, default=512, help='Desired height of the image')
-    parser.add_argument('--img_width', type=int, default=1024, help='Desired width of the image')
+    parser.add_argument('--img_height', type=int, default=1024, help='Desired height of the image')
+    parser.add_argument('--img_width', type=int, default=512, help='Desired width of the image')
     parser.add_argument('--batch_size', type=int, default=8, help='Batch size')
     parser.add_argument('--device',
                         choices=[torch.device('cpu'), torch.device('cuda'), torch.device('mps')],
@@ -73,7 +73,7 @@ def create_pipeline_config():
     # Transformations
     data_transformations = parser.add_argument_group()
     data_transformations.add_argument('--seed', type=int, default=50, help='Randomness seed')
-    data_transformations.add_argument('--crop_size', type=tuple, default=(512, 1024), help='Size of the image after cropping (height, width)')
+    data_transformations.add_argument('--crop_size', type=tuple, default=(512, 512), help='Size of the image after cropping (height, width)') # B5 (1024, 1024)
     data_transformations.add_argument('--horizontal_flip_probability', type=float, default=0.5, help='Probability of the horizontal flip image transformation')
     
     return parser
@@ -97,7 +97,7 @@ def parse_train_config() -> argparse.Namespace:
 
     # Hyperparameters
     parser.add_argument('--num_epochs', type=int, default=3, help='Number of training epochs')
-    parser.add_argument('--learning_rate', '--lr', type=float, default=6e-05, help='Initial Learning rate')
+    parser.add_argument('--learning_rate', '--lr', type=float, default=6e-06, help='Initial Learning rate')
     parser.add_argument('--weight_decay', type=float, default=0.01, help='Weight decay (reguralization coef) applied to training loss')
     parser.add_argument('--optimizer_betas', type=Tuple[float, float], default=(0.9, 0.999), help='Adam optimizer beta parameters (b1, b2)')
 
