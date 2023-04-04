@@ -64,13 +64,13 @@ class MapillaryDataset(Dataset):
         self._data_path = data_path
         self._labels_path = labels_path
         
-        self.sample_filenames = [file for file in os.listdir(self._data_path) if is_image(file)]
+        self.sample_filenames = sorted([file for file in os.listdir(self._data_path) if is_image(file)])
 
         if self._labels_path is not None:
             if not labels_path.exists():
                 raise OSError(f'Path: {labels_path} does not exist')
             self._is_test = False
-            self.label_filenames = os.listdir(self._labels_path)
+            self.label_filenames = sorted([file for file in os.listdir(self._labels_path) if is_image(file)])
             if len(self.sample_filenames) != len(self.label_filenames):
                 warnings.warn('Number of samples does not match the number of labels.')
         else:
@@ -130,7 +130,7 @@ class MapillaryDataset(Dataset):
     
     def get_sample_and_label(self, index: int):
         sample_filename = self.sample_filenames[index]
-        label_filename = get_corresponding_filename(sample_filename, self.label_filenames)
+        label_filename = self.label_filenames[index]
 
         if label_filename is None:
             raise OSError(f'No label for such file {sample_filename}')
@@ -318,38 +318,3 @@ class MapillaryDataset(Dataset):
         """
         plt.imshow(image)
         plt.show()
-
-
-# Helper functions
-
-def get_first_filename_match(filenames, pattern_filename):
-    """_summary_
-
-    Args:
-        filenames (list): _description_
-        pattern_filename (str): _description_
-
-    Returns:
-        str: the matched filename
-        None: if no filename was matched
-    """
-    pattern_name = os.path.splitext(pattern_filename)[0]
-    matched_filename = next(filter(lambda x: os.path.splitext(x)[0] == pattern_name, filenames), None)
-    return matched_filename
-
-
-def get_corresponding_filename(pattern_filename: str, filenames: List[str]) -> str:
-    """Finds a complete filename from the list corresponding to the provided pattern filename.
-    Checks if the filenames match (omits the extensions). Then returns the complete filename (with the file extension).
-
-    Args:
-        pattern_filename (str): complete pattern filename (with extension)
-
-    Returns:
-        str: the matched complete filename
-        None: if no filename was matched
-    """
-    pattern_name = os.path.splitext(pattern_filename)[0]
-    filter_condition = filter(lambda x: os.path.splitext(x)[0] == pattern_name, filenames)
-    matched_filename = next(filter_condition, None)
-    return matched_filename
