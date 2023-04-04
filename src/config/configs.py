@@ -63,7 +63,8 @@ def create_pipeline_config():
     # General
     parser.add_argument('--img_height', type=int, default=1024, help='Desired height of the image')
     parser.add_argument('--img_width', type=int, default=512, help='Desired width of the image')
-    parser.add_argument('--batch_size', type=int, default=8, help='Batch size')
+    parser.add_argument('--batch_size', type=int, default=8, help='Batch size for training')
+    parser.add_argument('--val_batch_size', type=int, default=1, help='Batch size for validation')
     parser.add_argument('--device',
                         choices=[torch.device('cpu'), torch.device('cuda'), torch.device('mps')],
                         type=available_torch_device,
@@ -114,7 +115,6 @@ def parse_evaluation_config() -> argparse.Namespace:
     args = parser.parse_args()
     args.img_width = 2048
     args.img_height = 1024
-    args.batch_size = 1
 
     return args
 

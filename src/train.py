@@ -14,7 +14,6 @@ from transformers.integrations import MLflowCallback
 from config.configs import parse_train_config
 from models.segformer import create_segformer_model_for_train
 from utils.metrics import Evaluator
-from utils.helpers import display_dict
 from data_processing.mapillary_dataset import MapillaryDataset
 from data_processing.pipelines.transformation_pipelines import (
                                                       create_data_transformation_pipeline,
@@ -67,8 +66,8 @@ def create_training_args(config: Namespace):
         lr_scheduler_type=SchedulerType.POLYNOMIAL,
 
         # ------ Eval params: ------ #
-        evaluation_strategy='epoch',  # TODO: 'epoch',
-        per_device_eval_batch_size=config.batch_size,  # TODO: Optionally change the val batch size
+        evaluation_strategy='epoch',
+        per_device_eval_batch_size=config.val_batch_size
     )
 
 
