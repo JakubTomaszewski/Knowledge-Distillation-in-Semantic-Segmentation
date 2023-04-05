@@ -1,0 +1,18 @@
+model_type: "B5"
+model_checkpoint: "nvidia/segformer-b5-finetuned-cityscapes-1024-1024"
+
+image_size:
+  train:
+    - height: 512
+    - width: 1024
+  eval:
+    - height: 512
+    - width: 1024
+
+crop_size:
+  train:
+    - height: 512
+    - width: 1024
+  eval:
+    - height: 512
+    - width: 1024
