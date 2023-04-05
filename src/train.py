@@ -50,7 +50,7 @@ def create_training_args(config: Namespace):
         logging_dir=config.output_log_dir,
         report_to='mlflow',
         save_strategy='epoch',
-        save_total_limit=30,
+        save_total_limit=config.num_checkpoints_to_save,
 
         # ------ Train hyperparameters: ------ #
         num_train_epochs=config.num_epochs,

@@ -95,6 +95,7 @@ def parse_train_config() -> argparse.Namespace:
     parser.add_argument('--output_log_dir', type=Path, default=output_log_dir_path, help='The output directory where the model logs will be written')
     parser.add_argument('--mlflow_log_dir', type=Path, default=output_mlflow_log_dir_path, help='The output directory where the mlflow logs will be written')
     parser.add_argument('--overwrite_output_dir', type=bool, default=False, help='Denotes if the contents of output_dir should be overwritten when training a new')
+    parser.add_argument('--num_checkpoints_to_save', type=int, default=30, help='Number of model checkpoints to save in output_dir (If the number of checkpoints exceeds this value, the oldest checkpoints will be overwritten)')
 
     # Hyperparameters
     parser.add_argument('--num_epochs', type=int, default=3, help='Number of training epochs')
