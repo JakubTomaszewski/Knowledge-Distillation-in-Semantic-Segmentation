@@ -67,7 +67,8 @@ def create_training_args(config: Namespace):
 
         # ------ Eval params: ------ #
         evaluation_strategy='epoch',
-        per_device_eval_batch_size=config.val_batch_size
+        per_device_eval_batch_size=config.val_batch_size,
+        eval_accumulation_steps=1000
     )
 
 
