@@ -13,7 +13,7 @@ def create_dataset_config() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description='Image dataset config parser',  add_help=False)
 
     train_data_path = Path('data/Mapillary_vistas_dataset/training/images')
-    train_labels_path = Path('data/Mapillary_vistas_dataset/training/labels')
+    train_labels_path = Path('data/Mapillary_vistas_dataset/training/labels_mapped')
     val_data_path = Path('data/Mapillary_vistas_dataset/validation/images')
     val_labels_path = Path('data/Mapillary_vistas_dataset/validation/labels')
     test_data_path = Path('data/Mapillary_vistas_dataset/testing/images')
@@ -45,7 +45,7 @@ def create_dataset_config() -> argparse.ArgumentParser:
                         default=json_class_names_file_path)
 
     # General
-    parser.add_argument('--void_class_id', type=int, default=65, help='Label of the void class which should be skipped during training and evaluation')
+    parser.add_argument('--void_class_id', type=int, default=19, help='Label of the void class which should be skipped during training and evaluation')
 
     return parser
 
@@ -54,6 +54,7 @@ def create_pipeline_config():
     parser = argparse.ArgumentParser(description='Segmentation model pipeline config parser',  add_help=False)
 
     model_checkpoint = "nvidia/segformer-b0-finetuned-cityscapes-512-1024"
+    # model_checkpoint = "nvidia/segformer-b5-finetuned-cityscapes-1024-1024"
 
     # Model
     parser.add_argument('--model_checkpoint', type=str,
