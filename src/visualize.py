@@ -18,24 +18,23 @@ if __name__ == '__main__':
     train_config = parse_train_config()
     img_shape = (train_config.img_height, train_config.img_width)
     train_config.crop_size = img_shape
-    
 
     set_randomness_seed(train_config.seed)
 
     # Data transformations
     data_transformation_pipeline = create_data_transformation_pipeline(train_config)
     label_transformation_pipeline = create_label_transformation_pipeline(train_config)
-    
+
     # Data processing
     data_preprocessing_pipeline = create_data_preprocessing_pipeline(train_config)
     prediction_postprocessing_pipeline = create_prediction_postprocessing_pipeline(img_shape)
-    
+
     # Dataset
     m_dataset = MapillaryDataset(train_config.train_data_path,
                                train_config.train_labels_path,
-                               sample_transformation=data_transformation_pipeline,
-                               label_transformation=label_transformation_pipeline,
-                            #    data_preprocessor=data_preprocessing_pipeline,
+                            #    sample_transformation=data_transformation_pipeline,
+                            #    label_transformation=label_transformation_pipeline,
+                               data_preprocessor=data_preprocessing_pipeline,
                                json_class_names_file_path=train_config.json_class_names_file_path)
 
     # Dataloader
