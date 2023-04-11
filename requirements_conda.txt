@@ -8,6 +8,7 @@ opencv-python=4.7.0.72=pypi_0
 pillow=9.4.0=pypi_0
 pip=23.0.1=pyhd8ed1ab_0
 python=3.8.13=hd3575e6_0_cpython
+tensorboard=2.12.0=pypi_0
 torch=1.13.1=pypi_0
 torchvision=0.14.1=pypi_0
 tqdm=4.65.0=pypi_0
