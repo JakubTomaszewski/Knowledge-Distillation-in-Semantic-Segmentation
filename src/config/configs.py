@@ -54,7 +54,9 @@ def create_pipeline_config():
     parser = argparse.ArgumentParser(description='Segmentation model pipeline config parser',  add_help=False)
 
     model_checkpoint = "nvidia/segformer-b0-finetuned-cityscapes-512-1024"
-    # model_checkpoint = "nvidia/segformer-b5-finetuned-cityscapes-1024-1024"
+#     model_checkpoint = "nvidia/segformer-b5-finetuned-cityscapes-1024-1024"
+#     model_checkpoint = "nvidia/mit-b0"
+#     model_checkpoint = "nvidia/mit-b5"
 
     # Model
     parser.add_argument('--model_checkpoint', type=str,
@@ -64,7 +66,7 @@ def create_pipeline_config():
     # General
     parser.add_argument('--img_height', type=int, default=512, help='Desired height of the image')
     parser.add_argument('--img_width', type=int, default=1024, help='Desired width of the image')
-    parser.add_argument('--batch_size', type=int, default=8, help='Batch size for training')
+    parser.add_argument('--batch_size', type=int, default=4, help='Batch size for training')
     parser.add_argument('--val_batch_size', type=int, default=1, help='Batch size for validation')
     parser.add_argument('--device',
                         choices=[torch.device('cpu'), torch.device('cuda'), torch.device('mps')],
