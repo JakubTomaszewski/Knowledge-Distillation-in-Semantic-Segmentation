@@ -5,5 +5,9 @@ data/
 __pycache__/
 reference_papers/
 model_checkpoints/
-*_logs_*
 mlruns/
+debug/
+*_logs
+*_logs_*
+*.png
+*.xlsx

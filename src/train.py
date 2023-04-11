@@ -5,11 +5,11 @@ from copy import deepcopy
 from typing import List, Callable
 from argparse import Namespace
 
-import mlflow
 from torch.utils.data import Dataset
 from transformers import TrainingArguments, Trainer, SchedulerType, TrainerCallback
 from transformers.training_args import OptimizerNames
-from transformers.integrations import MLflowCallback
+from transformers.integrations import TensorBoardCallback
+from torch.utils.tensorboard import SummaryWriter
 
 from config.configs import parse_train_config
 from models.segformer import create_segformer_model_for_train
@@ -27,13 +27,8 @@ from data_processing.pipelines.processing_pipelines import (
                                                   )
 
 
-def configure_mlflow_logger(config: Namespace):
-    os.environ["MLFLOW_EXPERIMENT_NAME"]=config.model_checkpoint
-    os.environ["MLFLOW_FLATTEN_PARAMS"]="1"
-
-    mlflow.create_experiment(config.model_checkpoint, str(config.mlflow_log_dir))
-    mlflow.set_tracking_uri(config.mlflow_log_dir)
-
+def configure_tensorboard_logger(config: Namespace):
+    return SummaryWriter(log_dir=config.tensorboard_log_dir)
 
 
 def create_training_args(config: Namespace):
@@ -47,8 +42,8 @@ def create_training_args(config: Namespace):
 
         # ------ Logging & Saving ------ #
         logging_strategy='epoch',
-        logging_dir=config.output_log_dir,
-        report_to='mlflow',
+        logging_dir=config.tensorboard_log_dir,
+        report_to='tensorboard',
         save_strategy='epoch',
         save_total_limit=config.num_checkpoints_to_save,
 
@@ -136,9 +131,11 @@ if __name__ == '__main__':
     model = create_segformer_model_for_train(train_config, train_dataset.num_classes, id2name)
 
     # Logging
-    configure_mlflow_logger(train_config)
+    tb_writer = configure_tensorboard_logger(train_config)
+
+    # Callbacks
     train_callbacks = [
-        MLflowCallback()
+        TensorBoardCallback(tb_writer)
         ]
 
     # Trainer

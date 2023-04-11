@@ -15,9 +15,9 @@ def create_dataset_config() -> argparse.ArgumentParser:
     train_data_path = Path('data/Mapillary_vistas_dataset/training/images')
     train_labels_path = Path('data/Mapillary_vistas_dataset/training/labels_mapped')
     val_data_path = Path('data/Mapillary_vistas_dataset/validation/images')
-    val_labels_path = Path('data/Mapillary_vistas_dataset/validation/labels')
+    val_labels_path = Path('data/Mapillary_vistas_dataset/validation/labels_mapped')
     test_data_path = Path('data/Mapillary_vistas_dataset/testing/images')
-    json_class_names_file_path = Path('data/Mapillary_vistas_dataset/classes.json')
+    json_class_names_file_path = Path('data/Mapillary_vistas_dataset/mapped_classes.json')
 
     # Paths
     parser.add_argument('--train_data_path', type=Path,
@@ -87,16 +87,19 @@ def parse_train_config() -> argparse.Namespace:
 
     output_dir_path = Path('src/models/model_checkpoints')
     output_log_dir_path = Path('src/models/model_logs')
-    output_mlflow_log_dir_path = Path('src/models/mlflow_logs')
+    output_tensorboard_log_dir_path = Path('src/models/tensorboard_logs')
 
     parser = argparse.ArgumentParser(description='Training script config parser',
                                      parents=[dataset_config, pipeline_config])
 
+    # Output dirs and checkpoints
     parser.add_argument('--output_dir', type=Path, default=output_dir_path, help='The output directory where the model predictions and checkpoints will be written')
-    parser.add_argument('--output_log_dir', type=Path, default=output_log_dir_path, help='The output directory where the model logs will be written')
-    parser.add_argument('--mlflow_log_dir', type=Path, default=output_mlflow_log_dir_path, help='The output directory where the mlflow logs will be written')
     parser.add_argument('--overwrite_output_dir', type=bool, default=False, help='Denotes if the contents of output_dir should be overwritten when training a new')
     parser.add_argument('--num_checkpoints_to_save', type=int, default=30, help='Number of model checkpoints to save in output_dir (If the number of checkpoints exceeds this value, the oldest checkpoints will be overwritten)')
+
+    # Logging
+    parser.add_argument('--output_log_dir', type=Path, default=output_log_dir_path, help='The output directory where the model logs will be written')
+    parser.add_argument('--tensorboard_log_dir', type=Path, default=output_tensorboard_log_dir_path, help='The output directory where the tensorboard logs will be written')
 
     # Hyperparameters
     parser.add_argument('--num_epochs', type=int, default=3, help='Number of training epochs')
