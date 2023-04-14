@@ -127,7 +127,11 @@ if __name__ == '__main__':
     id2name.pop(train_config.void_class_id)
 
     # Model
-    model = create_segformer_model_for_train(train_config, train_dataset.num_classes, id2name)
+    model = create_segformer_model_for_train(train_config.model_checkpoint,
+                                             train_dataset.num_classes,
+                                             id2name,
+                                             void_class_id=train_config.void_class_id
+                                             )
 
     # Logging
     tb_writer = configure_tensorboard_logger(train_config)

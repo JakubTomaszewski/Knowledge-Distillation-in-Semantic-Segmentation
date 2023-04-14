@@ -50,7 +50,7 @@ if __name__ == '__main__':
     id2name.pop(evaluation_config.void_class_id)
 
     # Model
-    model = create_segformer_model_for_inference(evaluation_config, id2name)
+    model = create_segformer_model_for_inference(evaluation_config.model_checkpoint, id2name)
     model.to(evaluation_config.device)
 
     # Metrics
