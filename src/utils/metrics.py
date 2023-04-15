@@ -53,7 +53,8 @@ class Evaluator:
         Returns:
             dict: dictionary with stored metrics
         """
-        y_true, y_pred = eval_pred
+        y_true = eval_pred.label_ids
+        y_pred = eval_pred.predictions
 
         metrics = {}
         metrics["mean_iou"] = self.mean_iou_score(y_pred, y_true)
