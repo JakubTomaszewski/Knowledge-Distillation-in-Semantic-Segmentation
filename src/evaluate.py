@@ -5,7 +5,7 @@ from copy import deepcopy
 from torch.utils.data import DataLoader
 
 from config.configs import parse_evaluation_config
-from utils.helpers import display_dict, plot_class_distribution_with_iou
+from utils.helpers import display_dict, plot_class_iou
 from utils.metrics import Evaluator
 from data_processing.mapillary_dataset import MapillaryDataset
 from data_processing.pipelines.transformation_pipelines import (
@@ -69,11 +69,27 @@ if __name__ == '__main__':
         evaluator.update_state([predictions.cpu().numpy()], [label.cpu().numpy()])
         # iou_score.add_batch(predictions=predictions, references=label)
 
+
+    # IoU Calculation
+    mean_iou = evaluator.internal_state_mean_iou()
+    class_iou = evaluator.internal_state_iou_score_per_class()
+
     print('----------------------')
-    print('Mean IoU', evaluator.internal_state_mean_iou())
+    print(f'Mean IoU: {mean_iou}')
     print('Class IoU:')
-    display_dict(evaluator.internal_state_iou_score_per_class())
+    display_dict(class_iou)
     print('----------------------')
+
+    # Extract classes present in the validation dataset
+    present_class_iou = {k: v for k, v in zip(id2name.values(), class_iou.values()) if v is not None}
+
+    # Plot class IoU
+    plot_class_iou(present_class_iou,
+                   title='Class IoU score on the validation dataset',
+                   class_names=present_class_iou.keys(),
+                   mean_iou=mean_iou)
+    plt.show()
+
 
     # print('Hugging face IoU')
     # results = iou_score.compute(num_labels=dataset.num_classes, ignore_index=evaluation_config.void_class_id)
