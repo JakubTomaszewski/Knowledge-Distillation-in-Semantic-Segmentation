@@ -6,6 +6,7 @@ import json
 import torch
 import numpy as np
 import matplotlib.pyplot as plt
+from typing import Dict, List
 
 
 def torch_image_to_numpy(image: torch.Tensor) -> np.ndarray:
@@ -59,7 +60,7 @@ def available_torch_device(device):
         return torch.device('cpu')
 
 
-def display_dict(dict_to_print):
+def display_dict(dict_to_print: Dict):
     """Displays a dict in a fancy way
 
     Args:
@@ -105,7 +106,7 @@ def plot_training_loss(train_loss, val_loss=None):
         
         val_loss (list, optional): list of validation loss. Defaults to None.
     """
-    fig = plt.figure()
+    fig = plt.figure(figsize=(8, 5))
     plt.plot(train_loss, label='train')
     plt.title('Training loss')
     plt.xlabel('Epochs')
@@ -114,11 +115,12 @@ def plot_training_loss(train_loss, val_loss=None):
     if val_loss is not None:
         plt.plot(val_loss, label='val')
         plt.legend()
+    
     return fig
 
 
 def plot_training_loss_with_iou(train_loss, val_loss, eval_mean_iou):
-    fig, ax = plt.subplots()
+    fig, ax = plt.subplots(figsize=(7, 5))
     ax.plot(train_loss, label='train')
     ax.set_title('Training loss')
     ax.set_xlabel('Epochs')
@@ -133,7 +135,38 @@ def plot_training_loss_with_iou(train_loss, val_loss, eval_mean_iou):
     return fig
 
 
-def plot_class_distribution(class_counts: dict, class_names: list=None) -> plt.Figure:
+def plot_class_iou(class_iou: Dict,
+                   title: str = None,
+                   class_names: List = None,
+                   mean_iou: float = None
+                   ) -> plt.Figure:
+    # Creates a bar plot with the class IoU
+    
+    fig = plt.figure(figsize=(8, 5))
+    plt.bar(class_iou.keys(), class_iou.values(), color='green', alpha=0.5)
+    plt.ylim(0, 1.1)
+    plt.ylabel('IoU')
+    plt.xlabel('Class')
+
+    if title is not None:
+        plt.title(title)
+    else:
+        plt.title('IoU score for each class')
+    
+    if class_names is not None:
+        plt.xticks(range(len(class_iou.keys())), class_names, rotation=90)
+        plt.tight_layout()
+    
+    if mean_iou is not None:
+        plt.title(f'Mean IoU: {mean_iou}', loc='left', fontweight='semibold', fontsize = 9, color='red')
+    
+    return fig
+
+
+def plot_class_distribution(class_counts: dict,
+                            class_names: list=None,
+                            title: str=None
+                            ) -> plt.Figure:
     """Creates a bar plot with the class distribution
 
     Args:
@@ -143,16 +176,107 @@ def plot_class_distribution(class_counts: dict, class_names: list=None) -> plt.F
     plt.bar(class_counts.keys(), class_counts.values(), color='green', alpha=0.5)
     plt.ylabel('Count')
     plt.xlabel('Class')
-    plt.title('Class appearances')
+    
+    if title is not None:
+        plt.title(title)
+    else:
+        plt.title('Class appearances')
 
     if class_names is not None:
-        present_class_names = [class_names[int(class_id)] for class_id in class_counts.keys()]
-        plt.xticks(list(class_counts.keys()), present_class_names, rotation=90)
+        plt.xticks(list(class_counts.keys()), class_names, rotation=90)
         plt.tight_layout()
     return fig
 
 
-def plot_class_distribution_with_iou(class_counts: dict, class_iou: dict, class_names: list=None) -> plt.Figure:
+def plot_train_val_class_distribution(train_class_counts: Dict,
+                                     val_class_counts: Dict,
+                                     class_names: List=None,
+                                     title: str=None
+                                     ) -> plt.Figure:
+    """Creates a bar plot with the class distribution
+
+    Args:
+        class_counts (dict): dict with class counts
+    """
+    train_class_counts_keys = np.array(list(train_class_counts.keys()), dtype=np.int8)
+    val_class_counts_keys = np.array(list(val_class_counts.keys()), dtype=np.int8)
+    
+    fig, ax = plt.subplots(figsize=(17, 7))
+    ax.bar(train_class_counts_keys - 0.2, train_class_counts.values(), color='green', alpha=0.5, width=0.4, align='edge')
+    
+    ax.set_xlabel('Class')
+    ax.set_ylabel('Train Count', color='green')
+    
+    if title is not None:
+        ax.set_title(title)
+    else:
+        ax.set_title('Class appearances')
+
+    ax2 = ax.twinx()
+    ax2.bar(val_class_counts_keys + 0.2, val_class_counts.values(), color='blue', alpha=0.5, width=0.4, align='edge')
+    ax2.set_ylabel('Val Count', color='blue')
+
+    if class_names is not None:
+        present_class_names = [class_names[int(class_id)] for class_id in train_class_counts.keys()]
+        ax.set_xticks(train_class_counts_keys, present_class_names, rotation=90)
+        fig.tight_layout()
+    return fig
+
+
+def plot_train_val_class_distribution_with_iou(train_class_counts: Dict,
+                                               val_class_counts: Dict,
+                                               class_iou: Dict,
+                                                mean_iou: int=None,
+                                               class_names: List=None,
+                                               title: str=None
+                                               ) -> plt.Figure:
+    """Creates a bar plot with the class distribution
+
+    Args:
+        class_counts (dict): dict with class counts
+    """
+    train_class_counts_keys = np.array(list(train_class_counts.keys()), dtype=np.int8)
+    val_class_counts_keys = np.array(list(val_class_counts.keys()), dtype=np.int8)
+    
+    fig, ax = plt.subplots(figsize=(17, 7))
+    ax.set_title('Train and Val class distribution with IoU')
+    ax.bar(train_class_counts_keys - 0.2, train_class_counts.values(), color='green', alpha=0.5, width=0.4)
+    
+    ax.set_xlabel('Class')
+    ax.set_ylabel('Train Count', color='green')
+    
+    if title is not None:
+        ax.set_title(title)
+    else:
+        ax.set_title('Class appearances')
+
+    ax2 = ax.twinx()
+    ax2.bar(val_class_counts_keys + 0.2, val_class_counts.values(), color='blue', alpha=0.5, width=0.4)
+    ax2.set_ylabel('Val Count', color='blue')
+
+    ax3 = ax.twinx()
+    ax3.set_ylim(0, 1.1)
+    ax3.plot(class_iou.keys(), class_iou.values(), color='red', linestyle='--', marker='o', linewidth=2)
+    ax3.set_yticks([])
+    
+    plt.legend(['IoU'])
+
+    if mean_iou is not None:
+        plt.text(0.01, 0.96, f'Mean IoU: {mean_iou}', transform=ax.transAxes, fontweight='semibold', fontsize = 11, color='red')
+
+    if class_names is not None:
+        present_class_names = [class_names[int(class_id)] for class_id in train_class_counts.keys()]
+        ax.set_xticks(train_class_counts_keys, present_class_names, rotation=90)
+        fig.tight_layout()
+    return fig
+
+
+def plot_class_distribution_with_iou(class_counts: Dict, 
+                                     class_iou: Dict,
+                                     mean_iou: int=None,
+                                     class_names: List=None,
+                                     title: str=None
+                                     ) -> plt.Figure:
     """Creates a bar plot with the class distribution and with an IoU score for each class.
 
     Args:
@@ -165,13 +289,22 @@ def plot_class_distribution_with_iou(class_counts: dict, class_iou: dict, class_
     """
     fig, ax = plt.subplots(figsize=(15, 7))
     ax.bar(class_counts.keys(), class_counts.values(), color='green', alpha=0.5)
-    ax.set_title('Class appearances')
+    
     ax.set_xlabel('Class')
     ax.set_ylabel('Count')
+    
+    if title is not None:
+        ax.set_title(title)
+    else:
+        ax.set_title('Class appearances')
 
     ax2 = ax.twinx()
+    ax2.set_ylim(0, 1.1)
     ax2.plot(class_iou.keys(), class_iou.values(), color='red', linestyle='--', marker='o', linewidth=2)
     ax2.set_ylabel('IoU')
+
+    if mean_iou is not None:
+        plt.text(0.01, 0.96, f'Mean IoU: {mean_iou}', transform=ax.transAxes, fontweight='semibold', fontsize = 11, color='red')
 
     if class_names is not None:
         present_class_names = [class_names[int(class_id)] for class_id in class_counts.keys()]
