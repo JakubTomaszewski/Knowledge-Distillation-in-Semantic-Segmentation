@@ -141,9 +141,9 @@ def plot_class_iou(class_iou: Dict,
                    mean_iou: float = None
                    ) -> plt.Figure:
     # Creates a bar plot with the class IoU
-    
+
     fig = plt.figure(figsize=(8, 5))
-    plt.bar(class_iou.keys(), class_iou.values(), color='green', alpha=0.5)
+    plt.bar(class_iou.keys(), class_iou.values(), color='red', alpha=0.7)
     plt.ylim(0, 1.1)
     plt.ylabel('IoU')
     plt.xlabel('Class')
