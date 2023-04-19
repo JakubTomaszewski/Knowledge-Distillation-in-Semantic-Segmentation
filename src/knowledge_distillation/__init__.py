@@ -1,0 +1,2 @@
+from .kd_trainers import KnowledgeDistillationTrainer
+from .losses import DistillationCrossEntropyLoss, DistillationKLDivLoss
