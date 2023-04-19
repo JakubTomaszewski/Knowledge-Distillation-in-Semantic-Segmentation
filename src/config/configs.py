@@ -87,6 +87,7 @@ def parse_train_config() -> argparse.Namespace:
     dataset_config = create_dataset_config()
     pipeline_config = create_pipeline_config()
 
+    # Paths
     output_dir_path = Path('src/models/model_checkpoints')
     output_log_dir_path = Path('src/models/model_logs')
     output_tensorboard_log_dir_path = Path('src/models/tensorboard_logs')
@@ -108,6 +109,54 @@ def parse_train_config() -> argparse.Namespace:
     parser.add_argument('--learning_rate', '--lr', type=float, default=6e-05, help='Initial Learning rate')
     parser.add_argument('--weight_decay', type=float, default=0.01, help='Weight decay (reguralization coef) applied to training loss')
     parser.add_argument('--optimizer_betas', type=Tuple[float, float], default=(0.9, 0.999), help='Adam optimizer beta parameters (b1, b2)')
+
+    return parser.parse_args()
+
+
+def parse_kd_train_config() -> argparse.Namespace:
+    dataset_config = create_dataset_config()
+    pipeline_config = create_pipeline_config()
+
+    # Model checkpoints
+    # student_model_checkpoint = "nvidia/mit-b0"
+    student_model_checkpoint = "nvidia/segformer-b0-finetuned-cityscapes-512-1024"
+    # student_model_checkpoint = "nvidia/mit-b5"
+    teacher_model_checkpoint = "nvidia/segformer-b5-finetuned-cityscapes-1024-1024"
+
+    # Paths
+    output_dir_path = Path('src/models/model_checkpoints')
+    output_log_dir_path = Path('src/models/model_logs')
+    output_tensorboard_log_dir_path = Path('src/models/tensorboard_logs')
+
+    parser = argparse.ArgumentParser(description='Training script config parser',
+                                     parents=[dataset_config, pipeline_config])
+
+    # Model
+    parser.add_argument('--student_model_checkpoint', type=str,
+                        help='Student model checkpoint version',
+                        default=student_model_checkpoint)
+
+    parser.add_argument('--teacher_model_checkpoint', type=str,
+                        help='Teacher model checkpoint version',
+                        default=teacher_model_checkpoint)
+
+    # Output dirs and checkpoints
+    parser.add_argument('--output_dir', type=Path, default=output_dir_path, help='The output directory where the model predictions and checkpoints will be written')
+    parser.add_argument('--overwrite_output_dir', type=bool, default=False, help='Denotes if the contents of output_dir should be overwritten when training a new')
+    parser.add_argument('--num_checkpoints_to_save', type=int, default=30, help='Number of model checkpoints to save in output_dir (If the number of checkpoints exceeds this value, the oldest checkpoints will be overwritten)')
+
+    # Logging
+    parser.add_argument('--output_log_dir', type=Path, default=output_log_dir_path, help='The output directory where the model logs will be written')
+    parser.add_argument('--tensorboard_log_dir', type=Path, default=output_tensorboard_log_dir_path, help='The output directory where the tensorboard logs will be written')
+
+    # Hyperparameters
+    parser.add_argument('--num_epochs', type=int, default=3, help='Number of training epochs')
+    parser.add_argument('--learning_rate', '--lr', type=float, default=6e-05, help='Initial Learning rate')
+    parser.add_argument('--weight_decay', type=float, default=0.01, help='Weight decay (reguralization coef) applied to training loss')
+    parser.add_argument('--optimizer_betas', type=Tuple[float, float], default=(0.9, 0.999), help='Adam optimizer beta parameters (b1, b2)')
+    
+    parser.add_argument('--temperature', type=int, default=2, help='Temperature parameter for distillation loss')
+    parser.add_argument('--alpha', type=float, default=0.5, help='Alpha parameter for distillation loss denoting the weight of the distillation loss')
 
     return parser.parse_args()
 
