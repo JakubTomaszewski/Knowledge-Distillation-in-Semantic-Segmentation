@@ -10,7 +10,7 @@ from transformers.training_args import OptimizerNames
 from transformers.integrations import TensorBoardCallback
 from torch.utils.tensorboard import SummaryWriter
 
-from config.configs import parse_train_config, parse_evaluation_config
+from config.configs import parse_train_config
 from models.segformer import create_segformer_model_for_train
 from utils.metrics import Evaluator
 from data_processing.mapillary_dataset import MapillaryDataset
@@ -87,9 +87,9 @@ def create_trainer(model: nn.Module,
 
 if __name__ == '__main__':
     # Config
+    evaluation_config = parse_train_config()
     train_config = parse_train_config()
-    evaluation_config = parse_evaluation_config()
-    
+
     img_shape = (train_config.img_height, train_config.img_width)
 
     # Data transformations
