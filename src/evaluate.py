@@ -88,7 +88,7 @@ if __name__ == '__main__':
                    mean_iou=mean_iou)
 
     # Save fig
-    eval_output_dir = Path(f'docs/eval_results/{evaluation_config.model_checkpoint.split("/")[-1]}')
+    eval_output_dir = Path(f'docs/eval_results/{evaluation_config.model_checkpoint.split("/")[-2]}/{evaluation_config.model_checkpoint.split("/")[-1]}')
     os.makedirs(eval_output_dir, exist_ok=True)
     plt.savefig(eval_output_dir / Path('class_iou.png'), dpi=300)
     
