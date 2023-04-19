@@ -97,7 +97,7 @@ def create_kd_trainer(student_model: nn.Module,
 if __name__ == '__main__':
     # Config
     train_config = parse_kd_train_config()
-    evaluation_config = parse_evaluation_config()
+    evaluation_config = parse_kd_train_config()
     
     img_shape = (train_config.img_height, train_config.img_width)
 
