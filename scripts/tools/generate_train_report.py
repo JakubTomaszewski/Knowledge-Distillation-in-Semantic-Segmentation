@@ -15,8 +15,8 @@ from data_processing.mapillary_dataset import MapillaryDataset
 ### Model - adjust these params to match the model you want to evaluate ###
 ###########################################################################
 
-MODEL_VERSION = 'model_B0'  # or model_B5
-MODEL_CHECKPOINT = 2250
+MODEL_VERSION = 'model_B5_mapped'  # or model_B5
+MODEL_CHECKPOINT = 94500
 
 ###########################################################################
 
@@ -25,12 +25,13 @@ MODEL_CHECKPOINT = 2250
 TRAINING_STATE_LOG_FILE = f'../../src/models/model_checkpoints/{MODEL_VERSION}/model_{MODEL_CHECKPOINT}/trainer_state.json'
 
 # Dataset
+VOID_CLASS_ID = 19
 DATASET_DIR = '../../data/Mapillary_vistas_dataset'
-TRAIN_LABEL_DISTRIBUTION_FILE = f'{DATASET_DIR}/train_class_distribution.json'
-VAL_LABEL_DISTRIBUTION_FILE = f'{DATASET_DIR}/val_class_distribution.json'
+TRAIN_LABEL_DISTRIBUTION_FILE = f'{DATASET_DIR}/mapped_train_class_distribution.json'
+VAL_LABEL_DISTRIBUTION_FILE = f'{DATASET_DIR}/mapped_val_class_distribution.json'
 
-TRAIN_DISTRIBUTION_PLOT_PATH = f'../../docs/images/class_distribution.png'
-TRAIN_VAL_DISTRIBUTION_PLOT_PATH = f'../../docs/images/train_val_class_distribution.png'
+TRAIN_DISTRIBUTION_PLOT_PATH = f'../../docs/images/mapped_class_distribution.png'
+TRAIN_VAL_DISTRIBUTION_PLOT_PATH = f'../../docs/images/mapped_train_val_class_distribution.png'
 
 
 # Output Paths
@@ -47,7 +48,7 @@ def extract_train_log_data(training_log):
     train_loss_history = []
     val_loss_history = []
     eval_mean_iou_history = []
-    
+
     for idx, logged_epoch in enumerate(training_log):
         if idx % 2 == 0:
             train_loss_history.append(logged_epoch['loss'])
@@ -63,11 +64,11 @@ if __name__ == '__main__':
 
     # Datasets
     train_dataset = MapillaryDataset(Path(f'{DATASET_DIR}/training/images'),
-                                 Path(f'{DATASET_DIR}/training/labels'),
-                                 json_class_names_file_path=Path('../../data/Mapillary_vistas_dataset/classes.json'))
+                                 Path(f'{DATASET_DIR}/training/labels_mapped'),
+                                 json_class_names_file_path=Path('../../data/Mapillary_vistas_dataset/mapped_classes.json'))
 
     val_dataset = MapillaryDataset(Path(f'{DATASET_DIR}/validation/images'),
-                                   Path(f'{DATASET_DIR}/validation/labels'),
+                                   Path(f'{DATASET_DIR}/validation/labels_mapped'),
                                    json_class_names_file_path=Path(f'{DATASET_DIR}/classes.json'))
 
     # Load the training state log
@@ -78,7 +79,7 @@ if __name__ == '__main__':
     # Validation class IoU
     mean_iou = eval_mean_iou_history[-1]
     class_iou = {int(k): v for k, v in sorted(training_log[-1]['eval_iou_per_class'].items(), key=lambda item: int(item[0]))}
-
+    del class_iou[VOID_CLASS_ID]
 
     # Loss history
     if not os.path.exists(LOSS_PLOT_PATH):
@@ -104,13 +105,16 @@ if __name__ == '__main__':
         with open(VAL_LABEL_DISTRIBUTION_FILE, 'w', encoding='utf-8') as file:
             json.dump(val_label_distribution, file, sort_keys=True)
 
-
     # Train dataset class distribution
     if not os.path.exists(TRAIN_DISTRIBUTION_PLOT_PATH):
-        plot_class_distribution(train_label_distribution, class_names=list(train_dataset.id2name.values()), title='Class appearances in train set')
+        plot_class_distribution(train_label_distribution,
+                                class_names=list(train_dataset.id2name.values()),
+                                title='Class appearances in train set')
         plt.savefig(TRAIN_DISTRIBUTION_PLOT_PATH)
         plt.show()
 
+    del train_label_distribution[VOID_CLASS_ID]
+    del val_label_distribution[VOID_CLASS_ID]
 
     # Train class distribution with IoU
     if not os.path.exists(IOU_TRAIN_DISTRIBUTION_PLOT_PATH):
@@ -140,7 +144,7 @@ if __name__ == '__main__':
                                                    val_label_distribution, 
                                                    class_iou,
                                                    mean_iou,
-                                                   class_names=list(train_dataset.id2name.values()), 
+                                                   class_names=list(train_dataset.id2name.values()),
                                                    title='Class appearances in train and validation set with IoU')
         plt.savefig(TRAIN_VAL_IOU_DISTRIBUTION_PLOT_PATH)
         plt.show()
