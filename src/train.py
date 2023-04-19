@@ -1,8 +1,7 @@
-import os
 import torch
 import torch.nn as nn
 from copy import deepcopy
-from typing import List, Callable
+from typing import List, Callable, Union, Dict
 from argparse import Namespace
 
 from torch.utils.data import Dataset
@@ -11,7 +10,7 @@ from transformers.training_args import OptimizerNames
 from transformers.integrations import TensorBoardCallback
 from torch.utils.tensorboard import SummaryWriter
 
-from config.configs import parse_train_config
+from config.configs import parse_train_config, parse_evaluation_config
 from models.segformer import create_segformer_model_for_train
 from utils.metrics import Evaluator
 from data_processing.mapillary_dataset import MapillaryDataset
@@ -70,7 +69,7 @@ def create_training_args(config: Namespace):
 def create_trainer(model: nn.Module,
                    training_args: TrainingArguments,
                    train_dataset: Dataset,
-                   eval_dataset: Dataset,
+                   eval_datasets: Union[Dataset, Dict[str, Dataset]],
                    prediction_postprocessing_pipeline: Callable,
                    metric: Callable,
                    callbacks: List[TrainerCallback] = []
@@ -79,7 +78,7 @@ def create_trainer(model: nn.Module,
         model=model,
         args=training_args,
         train_dataset=train_dataset,
-        eval_dataset=eval_dataset,
+        eval_dataset=eval_datasets,
         preprocess_logits_for_metrics=prediction_postprocessing_pipeline,
         compute_metrics=metric,
         callbacks=callbacks,
@@ -88,8 +87,8 @@ def create_trainer(model: nn.Module,
 
 if __name__ == '__main__':
     # Config
-    evaluation_config = parse_train_config()
     train_config = parse_train_config()
+    evaluation_config = parse_evaluation_config()
     
     img_shape = (train_config.img_height, train_config.img_width)
 
@@ -143,8 +142,8 @@ if __name__ == '__main__':
     trainer = create_trainer(model,
                              training_args,
                              train_dataset,
-                             eval_dataset,
-                             prediction_postprocessing_pipeline,
+                             eval_datasets=eval_dataset,  # {'val': eval_dataset, 'train': train_dataset}
+                             prediction_postprocessing_pipeline=prediction_postprocessing_pipeline,
                              metric=evaluator.compute_metrics,
                              callbacks=train_callbacks
                              )
