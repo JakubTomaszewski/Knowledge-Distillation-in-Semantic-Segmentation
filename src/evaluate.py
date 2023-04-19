@@ -1,4 +1,5 @@
 import os
+import json
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 from copy import deepcopy
@@ -66,6 +67,7 @@ if __name__ == '__main__':
         predictions = prediction_postprocessing_pipeline(outputs, None)
 
         evaluator.update_state([predictions.cpu().numpy()], [label.cpu().numpy()])
+        break
 
     # IoU Calculation
     mean_iou = evaluator.internal_state_mean_iou()
@@ -90,3 +92,7 @@ if __name__ == '__main__':
     eval_output_dir = Path('eval_results')
     os.makedirs(eval_output_dir, exist_ok=True)
     plt.savefig(eval_output_dir / f'{evaluation_config.model_checkpoint.split("/")[-1]}_class_iou.png', dpi=300)
+    
+    # Write results to file
+    with open(eval_output_dir / f'{evaluation_config.model_checkpoint.split("/")[-1]}_class_iou.json', 'w') as file:
+        json.dump(present_class_iou, file)
