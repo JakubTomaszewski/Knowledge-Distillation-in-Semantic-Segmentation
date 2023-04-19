@@ -1,7 +1,8 @@
-# import evaluate
+import os
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 from copy import deepcopy
+from pathlib import Path
 from torch.utils.data import DataLoader
 
 from config.configs import parse_evaluation_config
@@ -22,7 +23,6 @@ from models.segformer import create_segformer_model_for_inference
 if __name__ == '__main__':
     # Config
     evaluation_config = parse_evaluation_config()
-
     img_shape = (evaluation_config.img_height, evaluation_config.img_width)
 
     # Data transformations
@@ -55,7 +55,6 @@ if __name__ == '__main__':
     # Metrics
     evaluator = Evaluator(class_labels=dataset.id2name.keys(),
                           ignore_index=evaluation_config.void_class_id)
-    # iou_score = evaluate.load('mean_iou')
 
     # Evaluation loop
     for batch_num, batch in tqdm(enumerate(eval_dataloader)):
@@ -67,8 +66,6 @@ if __name__ == '__main__':
         predictions = prediction_postprocessing_pipeline(outputs, None)
 
         evaluator.update_state([predictions.cpu().numpy()], [label.cpu().numpy()])
-        # iou_score.add_batch(predictions=predictions, references=label)
-
 
     # IoU Calculation
     mean_iou = evaluator.internal_state_mean_iou()
@@ -88,10 +85,8 @@ if __name__ == '__main__':
                    title='Class IoU score on the validation dataset',
                    class_names=present_class_iou.keys(),
                    mean_iou=mean_iou)
-    plt.show()
 
-
-    # print('Hugging face IoU')
-    # results = iou_score.compute(num_labels=dataset.num_classes, ignore_index=evaluation_config.void_class_id)
-    # print('Mean IoU', results['mean_iou'])
-    # print('Class IoU', results['per_category_iou'])
+    # Save fig
+    eval_output_dir = Path('eval_results')
+    os.makedirs(eval_output_dir, exist_ok=True)
+    plt.savefig(eval_output_dir / f'{evaluation_config.model_checkpoint.split("/")[-1]}_class_iou.png', dpi=300)
