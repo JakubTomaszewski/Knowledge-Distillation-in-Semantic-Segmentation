@@ -67,7 +67,6 @@ if __name__ == '__main__':
         predictions = prediction_postprocessing_pipeline(outputs, None)
 
         evaluator.update_state([predictions.cpu().numpy()], [label.cpu().numpy()])
-        break
 
     # IoU Calculation
     mean_iou = evaluator.internal_state_mean_iou()
