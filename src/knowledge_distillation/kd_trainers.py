@@ -73,8 +73,8 @@ class KnowledgeDistillationTrainer(Trainer):
         """
         labels = inputs.pop("labels")
 
-        student_outputs = student_model(**inputs, output_hidden_states=True, output_attentions=True)
-        teacher_outputs = self.teacher_model(**inputs, output_hidden_states=True, output_attentions=True)
+        student_outputs = student_model(**inputs)
+        teacher_outputs = self.teacher_model(**inputs)
         
         student_logits = student_outputs.logits
         teacher_logits = teacher_outputs.logits
