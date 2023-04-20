@@ -51,7 +51,7 @@ class KnowledgeDistillationTrainer(Trainer):
                          preprocess_logits_for_metrics
                          )
 
-        self.teacher_model = teacher_model
+        self.teacher_model = teacher_model.to(self.args.device)
         self.teacher_model.eval()
         self.distillation_loss = distillation_loss
 
