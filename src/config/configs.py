@@ -12,10 +12,10 @@ from utils.helpers import available_torch_device
 def create_dataset_config() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description='Image dataset config parser',  add_help=False)
 
-    train_data_path = Path('data/Mapillary_vistas_dataset/training/images')
-    train_labels_path = Path('data/Mapillary_vistas_dataset/training/labels_mapped')
-    val_data_path = Path('data/Mapillary_vistas_dataset/validation/images')
-    val_labels_path = Path('data/Mapillary_vistas_dataset/validation/labels_mapped')
+    train_data_path = Path('data/Mapillary_vistas_dataset/training_small/images')
+    train_labels_path = Path('data/Mapillary_vistas_dataset/training_small/labels_mapped')
+    val_data_path = Path('data/Mapillary_vistas_dataset/validation_small/images')
+    val_labels_path = Path('data/Mapillary_vistas_dataset/validation_small/labels_mapped')
     test_data_path = Path('data/Mapillary_vistas_dataset/testing/images')
     json_class_names_file_path = Path('data/Mapillary_vistas_dataset/mapped_classes.json')
 
@@ -66,7 +66,7 @@ def create_pipeline_config():
     # General
     parser.add_argument('--img_height', type=int, default=512, help='Desired height of the image')
     parser.add_argument('--img_width', type=int, default=1024, help='Desired width of the image')
-    parser.add_argument('--batch_size', type=int, default=4, help='Batch size for training')
+    parser.add_argument('--batch_size', type=int, default=2, help='Batch size for training')
     parser.add_argument('--val_batch_size', type=int, default=1, help='Batch size for validation')
     parser.add_argument('--device',
                         choices=[torch.device('cpu'), torch.device('cuda'), torch.device('mps')],

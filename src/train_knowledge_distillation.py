@@ -10,9 +10,8 @@ from transformers import TrainingArguments, SchedulerType, TrainerCallback
 from transformers.training_args import OptimizerNames
 from transformers.integrations import TensorBoardCallback
 
-from knowledge_distillation import KnowledgeDistillationTrainer
-from knowledge_distillation import DistillationCrossEntropyLoss, DistillationKLDivLoss
-from config.configs import parse_kd_train_config, parse_evaluation_config
+from knowledge_distillation import KnowledgeDistillationTrainer, DistillationKLDivLoss
+from config.configs import parse_kd_train_config
 from models.segformer import create_segformer_model_for_train, create_segformer_model_for_inference
 from utils.metrics import Evaluator
 from data_processing.mapillary_dataset import MapillaryDataset
@@ -155,9 +154,9 @@ if __name__ == '__main__':
         ]
 
     # Loss
-    loss_func = DistillationCrossEntropyLoss(train_config.temperature,
-                                             train_config.alpha,
-                                             ignore_index=train_config.void_class_id)
+    loss_func = DistillationKLDivLoss(train_config.temperature,
+                                      train_config.alpha,
+                                      ignore_index=train_config.void_class_id)
 
     # Trainer
     training_args = create_training_args(train_config)
