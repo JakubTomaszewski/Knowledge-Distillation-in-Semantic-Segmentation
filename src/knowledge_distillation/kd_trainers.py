@@ -80,29 +80,5 @@ class KnowledgeDistillationTrainer(Trainer):
         teacher_logits = teacher_outputs.logits
 
         # Resize outputs to match the labels
-        student_logits = self.resize_outputs(student_logits, labels.shape[-2:])
-        teacher_logits = self.resize_outputs(teacher_logits, labels.shape[-2:])
-
         loss = self.distillation_loss(student_logits, teacher_logits, labels)
         return (loss, student_outputs) if return_outputs else loss
-
-    def resize_outputs(self,
-                       output: torch.Tensor,
-                       output_size: Tuple[int, int]
-                       ) -> torch.Tensor:
-        """Resizes the outputs to a given size to match the labels.
-
-        Args:
-            output (torch.Tensor): model output tensor to be resized
-            output_size (Tuple[int, int]): desired size
-
-        Returns:
-            torch.Tensor: resized output tensor
-        """
-        output_resized = nn.functional.interpolate(
-                                output,
-                                size=output_size, # (height, width)
-                                mode='bilinear',
-                                align_corners=False
-                                )
-        return output_resized
