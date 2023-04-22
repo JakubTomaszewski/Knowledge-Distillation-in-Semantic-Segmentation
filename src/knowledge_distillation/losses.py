@@ -34,7 +34,7 @@ class DistillationCrossEntropyLoss:
                                                   self.softmax(resized_teacher_logits / self.temperature))
         soft_labels_loss = soft_labels_loss * self.temperature**2
 
-        loss = (1 - self.alpha) * hard_labels_loss + self.alpha * soft_labels_loss
+        loss = hard_labels_loss + self.alpha * soft_labels_loss
         return loss
 
 
@@ -67,6 +67,6 @@ class DistillationKLDivLoss:
         soft_labels_loss = soft_labels_loss * self.temperature**2
         soft_labels_loss = soft_labels_loss / (student_logits.shape[2] * student_logits.shape[3])
 
-        loss = (1 - self.alpha) * hard_labels_loss + self.alpha * soft_labels_loss
+        loss = hard_labels_loss + self.alpha * soft_labels_loss
 
         return loss
