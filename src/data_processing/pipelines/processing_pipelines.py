@@ -29,7 +29,7 @@ def create_prediction_postprocessing_pipeline(img_shape: Tuple[int, int]) -> Cal
     Returns:
         Callable: prediction postprocessing pipeline
     """
-    def prediction_postprocessing_pipeline(prediction: torch.Tensor, _):
+    def prediction_postprocessing_pipeline(prediction: torch.Tensor, _ = None):
         """Scales the output prediction to the desired size and extracts model's class predictions with the highiest confidence.
 
         Args:
