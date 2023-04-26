@@ -1,7 +1,7 @@
+import torch
 import torch.nn as nn
+import torch.nn.functional as F
 from .utils import resize_outputs
-
-
 
 ### Response-based losses ###
 
@@ -69,4 +69,32 @@ class DistillationKLDivLoss:
 
         loss = hard_labels_loss + self.alpha * soft_labels_loss
 
+        return loss
+
+
+
+### Feature-based losses ###
+
+
+class FeatureMapDistillationMSELoss:
+    def __init__(self) -> None:
+        self.feature_distillation_loss = nn.MSELoss()
+
+    def __call__(self, student_hidden_layers, teacher_hidden_layers):
+        loss = 0
+
+        if len(student_hidden_layers) != len(teacher_hidden_layers):
+            raise ValueError("Student and Teacher must be the same number of layers")
+
+        for student_layer, teacher_layer in zip(student_hidden_layers, teacher_hidden_layers):
+            if student_layer.shape != teacher_layer.shape:
+                # Permute and Interpolate the student layer to match the teacher layer size
+                permuted_student_layer = student_layer.permute(0, 2, 3, 1)
+                current_shape = torch.IntTensor(list(teacher_layer.shape))
+                desired_shape = torch.Size(torch.index_select(current_shape, dim=0, index=torch.IntTensor([3, 1])))
+
+                interpolated_student_layer = F.interpolate(permuted_student_layer, size=desired_shape, mode='bilinear', align_corners=False)
+                student_layer = interpolated_student_layer.permute(0, 3, 1, 2)
+
+            loss += self.feature_distillation_loss(student_layer, teacher_layer)
         return loss
