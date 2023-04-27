@@ -130,7 +130,7 @@ class FeatureBasedKnowledgeDistillationTrainer(Trainer):
                          preprocess_logits_for_metrics
                          )
 
-        self.teacher_model = teacher_model
+        self.teacher_model = teacher_model.to(self.args.device)
         self.teacher_model.eval()
         self.response_distillation_loss = response_distillation_loss
         self.feature_distillation_loss = feature_distillation_loss
