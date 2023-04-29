@@ -88,13 +88,9 @@ class FeatureMapDistillationMSELoss:
 
         for student_layer, teacher_layer in zip(student_hidden_layers, teacher_hidden_layers):
             if student_layer.shape != teacher_layer.shape:
-                # Permute and Interpolate the student layer to match the teacher layer size
-                permuted_student_layer = student_layer.permute(0, 2, 3, 1)
-                current_shape = torch.IntTensor(list(teacher_layer.shape))
-                desired_shape = torch.Size(torch.index_select(current_shape, dim=0, index=torch.IntTensor([3, 1])))
-
-                interpolated_student_layer = F.interpolate(permuted_student_layer, size=desired_shape, mode='bilinear', align_corners=False)
-                student_layer = interpolated_student_layer.permute(0, 3, 1, 2)
+                # Cut teacher layer to match student layer shape
+                student_layer_shape = student_layer.shape
+                teacher_layer = teacher_layer[:, :student_layer_shape[1], :student_layer_shape[2], :student_layer_shape[3]]
 
             loss += self.feature_distillation_loss(student_layer, teacher_layer)
         return loss
