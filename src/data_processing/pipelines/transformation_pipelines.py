@@ -25,11 +25,9 @@ def create_data_transformation_pipeline(config: ArgumentParser,
     return Compose(
         [
             PILToTensor(),
-            Resize(img_shape, interpolation=InterpolationMode.BILINEAR),  # TODO: create RandomResize class with a param: ratio_range=(0.5, 2.0)
+            Resize(img_shape, interpolation=InterpolationMode.BILINEAR),
             RandomCrop(config.crop_size),
             RandomHorizontalFlip(config.horizontal_flip_probability),
-            # PhotoMetricDistortion(),
-            # Pad(config.padding, fill=config.void_class_id)
         ])
 
 
@@ -48,11 +46,9 @@ def create_label_transformation_pipeline(config: ArgumentParser,
     return Compose(
         [
             PILToTensor(),
-            Resize(img_shape, interpolation=InterpolationMode.NEAREST),  # TODO: create RandomResize class with a param: ratio_range=(0.5, 2.0)
+            Resize(img_shape, interpolation=InterpolationMode.NEAREST),
             RandomCrop(config.crop_size),
             RandomHorizontalFlip(config.horizontal_flip_probability),
-            # PhotoMetricDistortion(),
-            # Pad(config.padding, fill=config.void_class_id)
         ])
 
 
@@ -66,8 +62,6 @@ def create_evaluation_data_transformation_pipeline(config: ArgumentParser,
     Returns:
         torchvision.transforms.Compose: image transformation pipeline
     """
-    img_shape = (config.img_height, config.img_width)
-
     return Compose(
         [
             PILToTensor(),
@@ -83,8 +77,6 @@ def create_evaluation_label_transformation_pipeline(config: ArgumentParser,
     Returns:
         torchvision.transforms.Compose: image transformation pipeline
     """
-    img_shape = (config.img_height, config.img_width)
-
     return Compose(
         [
             PILToTensor(),

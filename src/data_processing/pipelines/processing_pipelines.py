@@ -6,7 +6,8 @@ from transformers import SegformerImageProcessor
 
 
 def create_data_preprocessing_pipeline(config: ArgumentParser) -> Callable:
-    """Factory function which creates a data preprocessing pipeline used for resizing an input image.
+    """Factory function which creates a data preprocessing pipeline.
+    The pipeline is used for resizing and normalizing the input image.
 
     Args:
         config (argparse.ArgumentParser): data config
@@ -29,18 +30,20 @@ def create_prediction_postprocessing_pipeline(img_shape: Tuple[int, int]) -> Cal
     Returns:
         Callable: prediction postprocessing pipeline
     """
-    def prediction_postprocessing_pipeline(prediction: torch.Tensor, _ = None):
-        """Scales the output prediction to the desired size and extracts model's class predictions with the highiest confidence.
+    def prediction_postprocessing_pipeline(prediction: torch.Tensor, _ = None) -> torch.Tensor:
+        """Interpolates the output prediction to the desired size and 
+        extracts model's class predictions with the highiest confidence.
 
         Args:
             prediction (torch.Tensor): model predictions
-            _ (torch.Tensor): ground truth labels. The param is not used, it is required to match the HuggingFace transformers library
+            _ (torch.Tensor): ground truth labels. The param is not used, 
+                              it is required to match the HuggingFace transformers library
 
         Returns:
             torch.Tensor: prediction after postprocessing
         """
         prediction_resized = nn.functional.interpolate(prediction,
-                            size=img_shape, # (height, width)
+                            size=img_shape,
                             mode='bilinear',
                             align_corners=False)
         y_pred = prediction_resized.argmax(dim=1)
