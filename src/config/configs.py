@@ -98,7 +98,7 @@ def parse_train_config() -> argparse.Namespace:
     # Output dirs and checkpoints
     parser.add_argument('--output_dir', type=Path, default=output_dir_path, help='The output directory where the model predictions and checkpoints will be written')
     parser.add_argument('--overwrite_output_dir', type=bool, default=False, help='Denotes if the contents of output_dir should be overwritten when training a new')
-    parser.add_argument('--num_checkpoints_to_save', type=int, default=30, help='Number of model checkpoints to save in output_dir (If the number of checkpoints exceeds this value, the oldest checkpoints will be overwritten)')
+    parser.add_argument('--num_checkpoints_to_save', type=int, default=50, help='Number of model checkpoints to save in output_dir (If the number of checkpoints exceeds this value, the oldest checkpoints will be overwritten)')
 
     # Logging
     parser.add_argument('--output_log_dir', type=Path, default=output_log_dir_path, help='The output directory where the model logs will be written')
@@ -141,7 +141,7 @@ def parse_kd_train_config() -> argparse.Namespace:
     # Output dirs and checkpoints
     parser.add_argument('--output_dir', type=Path, default=output_dir_path, help='The output directory where the model predictions and checkpoints will be written')
     parser.add_argument('--overwrite_output_dir', type=bool, default=False, help='Denotes if the contents of output_dir should be overwritten when training a new')
-    parser.add_argument('--num_checkpoints_to_save', type=int, default=30, help='Number of model checkpoints to save in output_dir (If the number of checkpoints exceeds this value, the oldest checkpoints will be overwritten)')
+    parser.add_argument('--num_checkpoints_to_save', type=int, default=50, help='Number of model checkpoints to save in output_dir (If the number of checkpoints exceeds this value, the oldest checkpoints will be overwritten)')
 
     # Logging
     parser.add_argument('--output_log_dir', type=Path, default=output_log_dir_path, help='The output directory where the model logs will be written')
@@ -165,8 +165,6 @@ def parse_fb_kd_train_config() -> argparse.Namespace:
 
     # Model checkpoints
     student_model_checkpoint = "nvidia/mit-b0"
-    # student_model_checkpoint = "nvidia/segformer-b0-finetuned-cityscapes-512-1024"
-    # student_model_checkpoint = "nvidia/mit-b5"
     teacher_model_checkpoint = "nvidia/segformer-b5-finetuned-cityscapes-1024-1024"
 
     # Paths
@@ -189,7 +187,7 @@ def parse_fb_kd_train_config() -> argparse.Namespace:
     # Output dirs and checkpoints
     parser.add_argument('--output_dir', type=Path, default=output_dir_path, help='The output directory where the model predictions and checkpoints will be written')
     parser.add_argument('--overwrite_output_dir', type=bool, default=False, help='Denotes if the contents of output_dir should be overwritten when training a new')
-    parser.add_argument('--num_checkpoints_to_save', type=int, default=30, help='Number of model checkpoints to save in output_dir (If the number of checkpoints exceeds this value, the oldest checkpoints will be overwritten)')
+    parser.add_argument('--num_checkpoints_to_save', type=int, default=50, help='Number of model checkpoints to save in output_dir (If the number of checkpoints exceeds this value, the oldest checkpoints will be overwritten)')
 
     # Logging
     parser.add_argument('--output_log_dir', type=Path, default=output_log_dir_path, help='The output directory where the model logs will be written')
@@ -203,8 +201,8 @@ def parse_fb_kd_train_config() -> argparse.Namespace:
 
     parser.add_argument('--temperature', type=int, default=1, help='Temperature parameter for distillation loss')
     parser.add_argument('--alpha', type=float, default=0.5, help='Alpha parameter for distillation loss denoting the weight of the distillation loss in the response based loss')
-    parser.add_argument('--response_loss_weight', type=float, default=0.7, help='Weight of the response loss in feature-based knowledge distillation')
-    parser.add_argument('--feature_loss_weight', type=float, default=0.3, help='Weight of the feature loss in feature-based knowledge distillation')
+    parser.add_argument('--response_loss_weight', type=float, default=1, help='Weight of the response loss in feature-based knowledge distillation')
+    parser.add_argument('--feature_loss_weight', type=float, default=0.2, help='Weight of the feature loss in feature-based knowledge distillation')
 
     return parser.parse_args()
 
