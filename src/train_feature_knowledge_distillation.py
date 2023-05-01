@@ -10,7 +10,7 @@ from transformers import TrainingArguments, SchedulerType, TrainerCallback
 from transformers.training_args import OptimizerNames
 from transformers.integrations import TensorBoardCallback
 
-from knowledge_distillation import FeatureBasedKnowledgeDistillationTrainer, FeatureMapDistillationMSELoss, DistillationKLDivLoss
+from knowledge_distillation import FeatureBasedKnowledgeDistillationTrainer, FeatureMapDistillationKLDivLoss, DistillationKLDivLoss
 from config.configs import parse_fb_kd_train_config
 from models.segformer import create_segformer_model_for_train, create_segformer_model_for_inference
 from utils.metrics import Evaluator
@@ -163,7 +163,7 @@ if __name__ == '__main__':
     response_loss = DistillationKLDivLoss(train_config.temperature,
                                           train_config.alpha,
                                           ignore_index=train_config.void_class_id)
-    feature_loss = FeatureMapDistillationMSELoss()
+    feature_loss = FeatureMapDistillationKLDivLoss()
 
 
     # Trainer

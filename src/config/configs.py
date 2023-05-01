@@ -164,7 +164,7 @@ def parse_fb_kd_train_config() -> argparse.Namespace:
     pipeline_config = create_pipeline_config()
 
     # Model checkpoints
-    student_model_checkpoint = "nvidia/mit-b0"
+    student_model_checkpoint = "nvidia/mit-b1"
     teacher_model_checkpoint = "nvidia/segformer-b5-finetuned-cityscapes-1024-1024"
 
     # Paths
