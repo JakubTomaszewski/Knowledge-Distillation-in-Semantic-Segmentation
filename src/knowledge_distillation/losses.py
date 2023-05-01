@@ -94,3 +94,22 @@ class FeatureMapDistillationMSELoss:
 
             loss += self.feature_distillation_loss(student_layer, teacher_layer)
         return loss
+
+
+class FeatureMapDistillationKLDivLoss:
+    def __init__(self) -> None:
+        self.feature_distillation_loss = nn.KLDivLoss(reduction='batchmean')
+        self.softmax = nn.Softmax(dim=1)
+
+    def __call__(self, student_hidden_layers, teacher_hidden_layers):
+        loss = 0
+
+        if len(student_hidden_layers) != len(teacher_hidden_layers):
+            raise ValueError("Student and Teacher must be the same number of layers")
+
+        for student_layer, teacher_layer in zip(student_hidden_layers, teacher_hidden_layers):
+            student_activations = self.softmax(student_layer)
+            teacher_activations = self.softmax(teacher_layer)
+            
+            loss += self.feature_distillation_loss(student_activations, teacher_activations)
+        return loss

@@ -1,2 +1,2 @@
 from .kd_trainers import KnowledgeDistillationTrainer, FeatureBasedKnowledgeDistillationTrainer
-from .losses import DistillationCrossEntropyLoss, DistillationKLDivLoss, FeatureMapDistillationMSELoss
+from .losses import DistillationCrossEntropyLoss, DistillationKLDivLoss, FeatureMapDistillationMSELoss, FeatureMapDistillationKLDivLoss
