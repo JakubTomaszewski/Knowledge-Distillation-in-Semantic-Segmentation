@@ -115,4 +115,4 @@ class FeatureMapDistillationKLDivLoss:
             
             layer_loss = self.feature_distillation_loss(student_activations, teacher_activations) / (student_activations.shape[2] * student_activations.shape[3])
             loss += layer_loss * self.temperature**2
-        return loss
+        return loss / len(student_hidden_layers)
