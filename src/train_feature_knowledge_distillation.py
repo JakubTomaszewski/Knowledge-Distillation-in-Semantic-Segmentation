@@ -163,7 +163,7 @@ if __name__ == '__main__':
     response_loss = DistillationKLDivLoss(train_config.temperature,
                                           train_config.alpha,
                                           ignore_index=train_config.void_class_id)
-    feature_loss = FeatureMapDistillationKLDivLoss()
+    feature_loss = FeatureMapDistillationKLDivLoss(train_config.feature_temperature,)
 
 
     # Trainer

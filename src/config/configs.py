@@ -199,10 +199,11 @@ def parse_fb_kd_train_config() -> argparse.Namespace:
     parser.add_argument('--weight_decay', type=float, default=0.01, help='Weight decay (reguralization coef) applied to training loss')
     parser.add_argument('--optimizer_betas', type=Tuple[float, float], default=(0.9, 0.999), help='Adam optimizer beta parameters (b1, b2)')
 
-    parser.add_argument('--temperature', type=int, default=1, help='Temperature parameter for distillation loss')
+    parser.add_argument('--temperature', type=int, default=1, help='Temperature parameter for response distillation loss')
+    parser.add_argument('--feature_temperature', type=int, default=4, help='Temperature parameter for the feature distillation loss')
     parser.add_argument('--alpha', type=float, default=0.5, help='Alpha parameter for distillation loss denoting the weight of the distillation loss in the response based loss')
     parser.add_argument('--response_loss_weight', type=float, default=1, help='Weight of the response loss in feature-based knowledge distillation')
-    parser.add_argument('--feature_loss_weight', type=float, default=0.2, help='Weight of the feature loss in feature-based knowledge distillation')
+    parser.add_argument('--feature_loss_weight', type=float, default=4, help='Weight of the feature loss in feature-based knowledge distillation')
 
     return parser.parse_args()
 

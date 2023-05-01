@@ -97,9 +97,11 @@ class FeatureMapDistillationMSELoss:
 
 
 class FeatureMapDistillationKLDivLoss:
-    def __init__(self) -> None:
+    def __init__(self, temperature: int=1) -> None:
         self.feature_distillation_loss = nn.KLDivLoss(reduction='batchmean')
+        self.log_softmax = nn.LogSoftmax(dim=1)
         self.softmax = nn.Softmax(dim=1)
+        self.temperature = temperature
 
     def __call__(self, student_hidden_layers, teacher_hidden_layers):
         loss = 0
@@ -108,8 +110,9 @@ class FeatureMapDistillationKLDivLoss:
             raise ValueError("Student and Teacher must be the same number of layers")
 
         for student_layer, teacher_layer in zip(student_hidden_layers, teacher_hidden_layers):
-            student_activations = self.softmax(student_layer)
-            teacher_activations = self.softmax(teacher_layer)
+            student_activations = self.log_softmax(student_layer / self.temperature)
+            teacher_activations = self.softmax(teacher_layer / self.temperature)
             
-            loss += self.feature_distillation_loss(student_activations, teacher_activations)
+            layer_loss = self.feature_distillation_loss(student_activations, teacher_activations) / (student_activations.shape[2] * student_activations.shape[3])
+            loss += layer_loss * self.temperature**2
         return loss
