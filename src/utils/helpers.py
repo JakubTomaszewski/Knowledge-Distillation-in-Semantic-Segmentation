@@ -119,17 +119,20 @@ def plot_training_loss(train_loss, val_loss=None):
     return fig
 
 
-def plot_training_loss_with_iou(train_loss, val_loss, eval_mean_iou):
+def plot_training_loss_with_iou(train_loss, val_loss=None, eval_mean_iou=None):
     fig, ax = plt.subplots(figsize=(7, 5))
-    ax.plot(train_loss, label='train')
-    ax.set_title('Training loss')
+    ax.plot(train_loss, label='train loss', color='#1f77b4', linewidth=2)
+    ax.set_title('Model training report')
     ax.set_xlabel('Epochs')
-    ax.set_ylabel('Loss')
-    ax.plot(val_loss, label='val')
+    ax.set_ylabel('Loss', color='#1f77b4', fontweight='semibold')
+    
+    if val_loss is not None:
+        ax.plot(val_loss, label='val loss', color='orange')
 
-    ax2 = ax.twinx()
-    ax2.plot(eval_mean_iou, label='eval_mean_iou', color='green', linestyle='--', linewidth=2)
-    ax2.set_ylabel('Val Mean IoU')
+    if eval_mean_iou is not None:
+        ax2 = ax.twinx()
+        ax2.plot(eval_mean_iou, label='val mean IoU', color='green', linestyle='--', linewidth=2)
+        ax2.set_ylabel('Val Mean IoU', color='green', fontweight='semibold')
 
     fig.legend(loc='center right', bbox_to_anchor=(0.9, 0.5), ncol=1)
     return fig
@@ -205,7 +208,7 @@ def plot_train_val_class_distribution(train_class_counts: Dict,
     ax.bar(train_class_counts_keys - 0.2, train_class_counts.values(), color='green', alpha=0.5, width=0.4, align='edge')
     
     ax.set_xlabel('Class')
-    ax.set_ylabel('Train Count', color='green')
+    ax.set_ylabel('Train Count', color='green', fontweight='semibold')
     
     if title is not None:
         ax.set_title(title)
@@ -214,7 +217,7 @@ def plot_train_val_class_distribution(train_class_counts: Dict,
 
     ax2 = ax.twinx()
     ax2.bar(val_class_counts_keys + 0.2, val_class_counts.values(), color='blue', alpha=0.5, width=0.4, align='edge')
-    ax2.set_ylabel('Val Count', color='blue')
+    ax2.set_ylabel('Val Count', color='blue', fontweight='semibold')
 
     if class_names is not None:
         present_class_names = [class_names[int(class_id)] for class_id in train_class_counts.keys()]
@@ -243,7 +246,7 @@ def plot_train_val_class_distribution_with_iou(train_class_counts: Dict,
     ax.bar(train_class_counts_keys - 0.2, train_class_counts.values(), color='green', alpha=0.5, width=0.4)
     
     ax.set_xlabel('Class')
-    ax.set_ylabel('Train Count', color='green')
+    ax.set_ylabel('Train Count', color='green', fontweight='semibold')
     
     if title is not None:
         ax.set_title(title)
@@ -252,7 +255,7 @@ def plot_train_val_class_distribution_with_iou(train_class_counts: Dict,
 
     ax2 = ax.twinx()
     ax2.bar(val_class_counts_keys + 0.2, val_class_counts.values(), color='blue', alpha=0.5, width=0.4)
-    ax2.set_ylabel('Val Count', color='blue')
+    ax2.set_ylabel('Val Count', color='blue', fontweight='semibold')
 
     ax3 = ax.twinx()
     ax3.set_ylim(0, 1.1)
@@ -291,7 +294,7 @@ def plot_class_distribution_with_iou(class_counts: Dict,
     ax.bar(class_counts.keys(), class_counts.values(), color='green', alpha=0.5)
     
     ax.set_xlabel('Class')
-    ax.set_ylabel('Count')
+    ax.set_ylabel('Count', fontweight='semibold', color='green')
     
     if title is not None:
         ax.set_title(title)
@@ -301,7 +304,7 @@ def plot_class_distribution_with_iou(class_counts: Dict,
     ax2 = ax.twinx()
     ax2.set_ylim(0, 1.1)
     ax2.plot(class_iou.keys(), class_iou.values(), color='red', linestyle='--', marker='o', linewidth=2)
-    ax2.set_ylabel('IoU')
+    ax2.set_ylabel('IoU', fontweight='semibold', color='red')
 
     if mean_iou is not None:
         plt.text(0.01, 0.96, f'Mean IoU: {mean_iou}', transform=ax.transAxes, fontweight='semibold', fontsize = 11, color='red')
@@ -310,4 +313,6 @@ def plot_class_distribution_with_iou(class_counts: Dict,
         present_class_names = [class_names[int(class_id)] for class_id in class_counts.keys()]
         ax.set_xticks(list(class_counts.keys()), present_class_names, rotation=90)
         fig.tight_layout()
+    
+    plt.legend(['IoU'])
     return fig
