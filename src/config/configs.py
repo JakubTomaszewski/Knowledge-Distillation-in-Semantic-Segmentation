@@ -55,8 +55,6 @@ def create_pipeline_config():
 
     model_checkpoint = "nvidia/mit-b0"
 #     model_checkpoint = "nvidia/mit-b5"
-    # model_checkpoint = "nvidia/segformer-b0-finetuned-cityscapes-512-1024"
-#     model_checkpoint = "nvidia/segformer-b5-finetuned-cityscapes-1024-1024"
 
     # Model
     parser.add_argument('--model_checkpoint', type=str,
