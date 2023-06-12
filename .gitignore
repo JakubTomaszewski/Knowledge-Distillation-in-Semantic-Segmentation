@@ -3,6 +3,7 @@ docs/eval_results/
 docs/train_results/
 docs/images/
 docs/utilities/
+scripts/iou_results_comparison/
 .DS_Store
 .vscode
 .ipynb_checkpoints/
