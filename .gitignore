@@ -1,4 +1,8 @@
 data/
+docs/eval_results/
+docs/train_results/
+docs/images/
+docs/utilities/
 .DS_Store
 .vscode
 .ipynb_checkpoints/
@@ -10,5 +14,3 @@ debug/
 debug_*
 *_logs
 *_logs_*
-*.png
-*.xlsx

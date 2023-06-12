@@ -1,6 +1,4 @@
-import torch
 import torch.nn as nn
-import torch.nn.functional as F
 from .utils import resize_outputs
 
 ### Response-based losses ###
@@ -68,7 +66,6 @@ class DistillationKLDivLoss:
         soft_labels_loss = soft_labels_loss / (student_logits.shape[2] * student_logits.shape[3])
 
         loss = hard_labels_loss + self.alpha * soft_labels_loss
-
         return loss
 
 

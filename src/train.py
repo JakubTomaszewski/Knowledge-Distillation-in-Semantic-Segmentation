@@ -37,7 +37,6 @@ def create_training_args(config: Namespace):
         overwrite_output_dir=config.overwrite_output_dir,
         seed=config.seed,
         no_cuda=config.device != torch.device('cuda'),
-        # use_mps_device=config.device == torch.device('mps'),
 
         # ------ Logging & Saving ------ #
         logging_strategy='epoch',
@@ -74,6 +73,20 @@ def create_trainer(model: nn.Module,
                    metric: Callable,
                    callbacks: List[TrainerCallback] = []
                    ) -> Trainer:
+    """Factory function which creates a Hugging Face Trainer.
+
+    Args:
+        model (nn.Module): model to train
+        training_args (TrainingArguments): model training arguments and hyperparameters
+        train_dataset (Dataset): dataset used for training
+        eval_datasets (Union[Dataset, Dict[str, Dataset]]): dataset/s used for evaluation
+        prediction_postprocessing_pipeline (Callable): pipeline used to process model predictions before evaluation
+        metric (Callable): function used to compute metrics
+        callbacks (List[TrainerCallback], optional): list of training callbacks. Defaults to [].
+
+    Returns:
+        Trainer: initialized Hugging Face Trainer
+    """
     return Trainer(
         model=model,
         args=training_args,

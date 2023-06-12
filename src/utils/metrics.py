@@ -7,7 +7,7 @@ from typing import List
 class Evaluator:
     """Evaluator class for calculating the Intersection Over Union metric (Jaccard Index)
     """
-    def __init__(self, 
+    def __init__(self,
                  class_labels: List,
                  ignore_index: int=255,
                  label_to_class_name: dict={}
