@@ -1,8 +1,6 @@
 import torch.nn as nn
 from .utils import resize_outputs
 
-### Response-based losses ###
-
 
 class DistillationCrossEntropyLoss:
     def __init__(self,
@@ -67,49 +65,3 @@ class DistillationKLDivLoss:
 
         loss = hard_labels_loss + self.alpha * soft_labels_loss
         return loss
-
-
-
-### Feature-based losses ###
-
-
-class FeatureMapDistillationMSELoss:
-    def __init__(self) -> None:
-        self.feature_distillation_loss = nn.MSELoss()
-
-    def __call__(self, student_hidden_layers, teacher_hidden_layers):
-        loss = 0
-
-        if len(student_hidden_layers) != len(teacher_hidden_layers):
-            raise ValueError("Student and Teacher must be the same number of layers")
-
-        for student_layer, teacher_layer in zip(student_hidden_layers, teacher_hidden_layers):
-            if student_layer.shape != teacher_layer.shape:
-                # Cut teacher layer to match student layer shape
-                student_layer_shape = student_layer.shape
-                teacher_layer = teacher_layer[:, :student_layer_shape[1], :student_layer_shape[2], :student_layer_shape[3]]
-
-            loss += self.feature_distillation_loss(student_layer, teacher_layer)
-        return loss
-
-
-class FeatureMapDistillationKLDivLoss:
-    def __init__(self, temperature: int=1) -> None:
-        self.feature_distillation_loss = nn.KLDivLoss(reduction='batchmean')
-        self.log_softmax = nn.LogSoftmax(dim=1)
-        self.softmax = nn.Softmax(dim=1)
-        self.temperature = temperature
-
-    def __call__(self, student_hidden_layers, teacher_hidden_layers):
-        loss = 0
-
-        if len(student_hidden_layers) != len(teacher_hidden_layers):
-            raise ValueError("Student and Teacher must be the same number of layers")
-
-        for student_layer, teacher_layer in zip(student_hidden_layers, teacher_hidden_layers):
-            student_activations = self.log_softmax(student_layer / self.temperature)
-            teacher_activations = self.softmax(teacher_layer / self.temperature)
-            
-            layer_loss = self.feature_distillation_loss(student_activations, teacher_activations) / (student_activations.shape[2] * student_activations.shape[3])
-            loss += layer_loss * self.temperature**2
-        return loss / len(student_hidden_layers)
