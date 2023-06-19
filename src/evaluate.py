@@ -1,3 +1,7 @@
+"""
+Script for evaluating the model's performance.
+"""
+
 import os
 import json
 import matplotlib.pyplot as plt

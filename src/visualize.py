@@ -1,3 +1,7 @@
+"""
+Script for visualizing dataset samples.
+"""
+
 import matplotlib.pyplot as plt
 from torch.utils.data import DataLoader
 from utils.helpers import set_randomness_seed, torch_image_to_numpy
@@ -32,8 +36,6 @@ if __name__ == '__main__':
     # Dataset
     m_dataset = MapillaryDataset(train_config.train_data_path,
                                train_config.train_labels_path,
-                            #    sample_transformation=data_transformation_pipeline,
-                            #    label_transformation=label_transformation_pipeline,
                                data_preprocessor=data_preprocessing_pipeline,
                                json_class_names_file_path=train_config.json_class_names_file_path)
 

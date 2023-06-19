@@ -1,4 +1,8 @@
-# Based on https://deci.ai/blog/measure-inference-time-deep-neural-networks/
+"""
+Script for measuring the model's inference time.
+
+Based on https://deci.ai/blog/measure-inference-time-deep-neural-networks/
+"""
 
 import torch
 import numpy as np

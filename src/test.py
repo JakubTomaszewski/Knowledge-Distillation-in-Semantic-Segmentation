@@ -1,3 +1,7 @@
+"""
+Script for model inference.
+"""
+
 import matplotlib.pyplot as plt
 import cv2
 from tqdm import tqdm
