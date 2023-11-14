@@ -2,12 +2,14 @@
 
 ## Overview
 
-This project is being created for my Bachelor's Thesis. 
-Its main goal is to create a small and robust Semantic Segmentation model. Eventually, the model will be used for segmenting road scenes in a fully autonomous vehicle. Thus, while preserving good performance the model has to work in real time.
+This project is being created for my Bachelor's Thesis - _"Tuning Small Semantic Segmentation Models via Knowledge Distillation"_.
+The idea was to create a small and robust Semantic Segmentation model, for the purpose of segmenting road scenes in a fully autonomous vehicle. Hence, while preserving good performance the model has to work in real time.
 
+To achive both, a technique known as Knowledge Distillation is employed in order to transfer knowledge from a large and complex [SegFormer](https://arxiv.org/abs/2105.15203) B5 model, to a small SegFormer B0 model, being lightweight enough to work on most devices in real time.
 
-To achive both, a technique known as Knowledge Distillation will be used in order to transfer knowledge from a large and complex model, to a small one.
-
+<p align="center">
+  <img width=80% src="./docs/images/visualization.gif" />
+</p>
 
 ## Technologies
 
@@ -21,8 +23,13 @@ To achive both, a technique known as Knowledge Distillation will be used in orde
 
 - [MLFlow](https://mlflow.org/docs/latest/index.html)
 
+## Method
 
+Response-Based Knowledge Distillation in employed while training the model. The training pipeline is presented in the diagram below. See [knowledge_distillation](./src/knowledge_distillation) for the implementation details.
 
+<p align="center">
+  <img width=80% src="./docs/diagrams/rb_kd.png" />
+</p>
 
 ## Creating the development environment
 
@@ -37,13 +44,11 @@ $ conda create --name <env> python=3.8
 $ pip install -r requirements.txt
 ```
 
-
 ## Train
 
 ```sh
 $ python src/train.py
 ```
-
 
 ## Visualize training logs
 
